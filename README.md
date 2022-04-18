@@ -6,6 +6,7 @@ Mecânicas:
 
 - Pular (entre os canos)
 - Portais (leva ao ping-pong bird para mais pontos)
+- Customização de todos os sprites
 -
 - Melancia (power-ups que dao invicibilidade)
 - Lichia (power-ups que te deixam menor)
