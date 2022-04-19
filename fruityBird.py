@@ -46,14 +46,15 @@ def inicialize(playerImg):
     state = {
 
         'windowSize': [1200, 600],
+        'floorHeight': 520,
         'birbPos': [200, 300],
-        'birbVel': 100,
-        'gravity': 9,
+        'birbVel': -100,
+        'gravity': 500,
         'pipeSpeed': 1,
         'coinCounter': 0,
         'lastUpdated': 0,
 
-        'collectCloud': True,
+        'collectCloud': False,
         'collectLychee': False
 
     }
@@ -61,6 +62,12 @@ def inicialize(playerImg):
     window = pygame.display.set_mode(state['windowSize'], vsync=True, flags=pygame.SCALED)
 
     return window, assets, state
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def title_screen():
+    0
+    # TODO 
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -78,9 +85,9 @@ def spawnNewPipe():
     spawnHoriz = 1200
 
     mainPipePos = [spawnHoriz, randHeight]
-    pipeUpperPos = [spawnHoriz, randHeight - 300]
-    pipeLowerPos = [spawnHoriz, randHeight + 100]
-    coinPos = [spawnHoriz, randHeight + 50]
+    # pipeUpperPos = [spawnHoriz, randHeight - 300]
+    # pipeLowerPos = [spawnHoriz, randHeight + 100]
+    # coinPos = [spawnHoriz, randHeight + 50]
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -89,10 +96,7 @@ def current_game_state(state):
     # ----------------- Collectables ------------------- #
 
     if state['collectCloud'] == True:
-        fades(window, assets, state, 'out')
-        coins = pingPongBirb(playerImg, window)
-        state['coinCounter'] += coins
-        fades(window, assets, state, 'in')
+        state['coinCounter'] += pingPongBirb(playerImg, window)
         state['collectCloud'] = False
     
     if state['collectLychee'] == True:
@@ -103,18 +107,20 @@ def current_game_state(state):
 
     tiks = pygame.time.get_ticks()
     deltaT = (tiks - state['lastUpdated']) / 1000
-    state['last_updated'] = tiks
+    state['lastUpdated'] = tiks
 
     state['birbVel'] = state['birbVel'] + state['gravity'] * deltaT
     state['birbPos'][1] = state['birbPos'][1] + state['birbVel'] * deltaT 
 
     # ----------------- Pipe spawing -------------------- #
 
-    if tiks % 2000 == 0:
-        spawnNewPipe()
+    # if tiks % 2000 == 0:
+    #     spawnNewPipe()
 
-    if state['birbPos'][1] > 1200:
-        state['birbPos'][1] = 1000
+    # ----------------- Floor detection ------------------- #
+
+    if state['birbPos'][1] > state['floorHeight'] - 28:
+        state['birbPos'][1] = state['floorHeight'] - 28
 
     # --------------------------------------------------- #
     
@@ -125,8 +131,11 @@ def current_game_state(state):
 
         # ----------------- Inputs ------------------- #
         if ev.type == pygame.KEYDOWN:
+            
+            # Jumping (with no cooldown)
             if ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w:
-                0
+                state['birbVel'] = -200
+
             if ev.key == pygame.K_r and state['hitPipe'] == True:
                 resets(state)
 
@@ -140,10 +149,17 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
     # Bg
     window.blit(assets['background'], [0, 0])
 
+    # Floor
+    pygame.draw.polygon(window, (200, 0, 0), [(0, state['floorHeight']), (1200, state['floorHeight']), (1200, 600), (0, 600)])
+
     # Bird
-    #birbRotation = state['birbVel'][1] * 0.25
-    #birb = pygame.transform.rotate(assets['birb'], birbRotation)
-    window.blit(assets['birb'], state['birbPos'])
+    if state['birbVel'] > 450:
+        birbRotation = -450 * 0.2
+    else:
+        birbRotation = -state['birbVel'] * 0.2
+        
+    birb = pygame.transform.rotate(assets['birb'], birbRotation)
+    window.blit(birb, state['birbPos'])
 
     # Coin counter
     coins = str(state['coinCounter'])
@@ -164,6 +180,11 @@ if __name__ == '__main__':
     pygame.display.set_icon(icon)
 
     rendering_to_screen(window, assets, state)
+
+    while title_screen():
+        0
+        # TODO (probs new file or somethin)
+
     while current_game_state(state):
         rendering_to_screen(window, assets, state)
 

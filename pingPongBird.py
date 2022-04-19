@@ -92,7 +92,6 @@ def rendering_to_screen(window: pygame.Surface, assets, statePing):
     
     # ----------------- Renders pipe ------------------- #
 
-    print(statePing)
     window.blit(assets['pipeTop'], statePing['pipeUpperPos'])
 
     window.blit(assets['pipeLow'], statePing['pipeLowerPos'])
@@ -126,63 +125,6 @@ def rendering_to_screen(window: pygame.Surface, assets, statePing):
     window.blit(assets['filter'], [0, 0])
 
     pygame.display.update()
-
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
-
-def fades(window, assets, statePing, inOrOut):
-
-    # ----------------- Fade in or fade out ------------------- #
-
-    if inOrOut == 'in':
-        img1 = pygame.image.load('assets/fadeIn1.png')
-        img2 = pygame.image.load('assets/fadeIn2.png')
-        img3 = pygame.image.load('assets/fadeIn3.png')
-        img4 = pygame.image.load('assets/fadeIn4.png')
-    else:
-        img4 = pygame.image.load('assets/fadeIn1.png')
-        img3 = pygame.image.load('assets/fadeIn2.png')
-        img2 = pygame.image.load('assets/fadeIn3.png')
-        img1 = pygame.image.load('assets/fadeIn4.png')
-
-    # ------------------------------------------------- #
-
-    statePing['fading'] = True
-    statePing['last_updated'] = pygame.time.get_ticks()
-
-    # ----------------- Changes img every second or so ------------------- #
-
-    while statePing['fading']:
-
-        tiks = pygame.time.get_ticks()
-        deltaT = tiks - statePing['last_updated']
-
-        if deltaT > 5300:
-            statePing['fading'] = False
-
-        elif deltaT > 5000:
-            rendering_to_screen(window, assets, statePing)
-
-        elif deltaT > 4000 and deltaT < 4009:
-            rendering_to_screen(window, assets, statePing)
-            window.blit(img4, (0,0))
-
-        elif deltaT > 3000 and deltaT < 3009:
-            rendering_to_screen(window, assets, statePing)
-            window.blit(img3, (0,0))
-
-        elif deltaT > 2000 and deltaT < 2009:
-            rendering_to_screen(window, assets, statePing)
-            window.blit(img2, (0,0))
-
-        elif deltaT > 1000 and deltaT < 1009:
-            rendering_to_screen(window, assets, statePing)
-            window.blit(img1, (0,0))
-        
-        pygame.display.update()
-
-    # ------------------------------------------------- #
-
-    statePing['last_updated'] = pygame.time.get_ticks()
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -307,13 +249,8 @@ def pingPongBirb(playerImg, window):
     icon = pygame.transform.scale(assets['birb'], (32, 32))
     pygame.display.set_icon(icon)
 
-    #fades(window, assets, statePing, 'in')
-
     while current_game_state(statePing):
         rendering_to_screen(window, assets, statePing)
-
-    # if statePing['quitGame'] != True:
-    #     fades(window, assets, statePing, 'out')
     
     return statePing['coinCounter']
 
