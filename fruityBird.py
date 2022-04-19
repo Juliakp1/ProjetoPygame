@@ -49,6 +49,7 @@ def inicialize(playerImg):
         'floorHeight': 520,
         'birbPos': [200, 300],
         'birbVel': -100,
+        'jumped': False,
         'gravity': 500,
         'pipeSpeed': 1,
         'coinCounter': 0,
@@ -132,12 +133,17 @@ def current_game_state(state):
         # ----------------- Inputs ------------------- #
         if ev.type == pygame.KEYDOWN:
             
-            # Jumping (with no cooldown)
-            if ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w:
+            # Jumping (only once)
+            if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w) and state['jumped'] == False:
                 state['birbVel'] = -200
+                state['jumped'] = True
 
             if ev.key == pygame.K_r and state['hitPipe'] == True:
                 resets(state)
+        
+        if ev.type == pygame.KEYUP:
+            if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w):
+                state['jumped'] = False
 
 
     return True
@@ -154,10 +160,10 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
 
     # Bird
     if state['birbVel'] > 450:
-        birbRotation = -450 * 0.2
+        birbRotation = -90
     else:
         birbRotation = -state['birbVel'] * 0.2
-        
+
     birb = pygame.transform.rotate(assets['birb'], birbRotation)
     window.blit(birb, state['birbPos'])
 
