@@ -48,74 +48,78 @@ def inicialize(playerImg):
 
     # ----------------- Game States ------------------- #
 
-    state = {
+    statePing = {
         'windowSize': [1200, 600],
         'mainPipePos': [580, 0],
         'ballPos': [700, 200],
         'ballVel': [200, 100],
-        'pipeUpperPos': [0, -472],
-        'pipeLowerPos': [0, 250],
+        'pipeUpperPos': [580, -472],
+        'pipeLowerPos': [580, 250],
         'pipeSpeedV': 8,
         'pipeSpeedH': 1,
         'pipeDirecton': 1,
-        'coinPos': [16, 189],
+        'coinPos': [596, 189],
         'gotCoin': False,
         'coinCounter': 0,
         'last_updated': 0,
         'gravity': 90,
         'hitPipe': False,
-        'timer': 5000
+        'timer': 5000,
+        'fading': False,
+        'quitGame': False
     }
 
-    return assets, state
+    return assets, statePing
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def resets(state):
-    state['hitPipe'] = False
-    state['gotCoin'] = False
-    state['ballPos'] = [1000, 200]
-    state['ballVel'] = [200, 100]
-    state['mainPipePos'] = [580,0]
-    state['coinCounter'] = 0
+def resets(statePing):
+    statePing['hitPipe'] = False
+    statePing['gotCoin'] = False
+    statePing['ballPos'] = [1000, 200]
+    statePing['ballVel'] = [200, 100]
+    statePing['mainPipePos'] = [580,0]
+    statePing['coinCounter'] = 0
     tiks = pygame.time.get_ticks()
-    state['last_updated'] = tiks
-    state['timer'] = 5000
+    statePing['last_updated'] = tiks
+    statePing['timer'] = 5000
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def rendering_to_screen(window: pygame.Surface, assets, state):
+def rendering_to_screen(window: pygame.Surface, assets, statePing):
 
     window.blit(assets['background'], [0, 0])
     
     # ----------------- Renders pipe ------------------- #
 
-    window.blit(assets['pipeTop'], state['pipeUpperPos'])
+    print(statePing)
+    window.blit(assets['pipeTop'], statePing['pipeUpperPos'])
 
-    window.blit(assets['pipeLow'], state['pipeLowerPos'])
+    window.blit(assets['pipeLow'], statePing['pipeLowerPos'])
 
     # ----------------- Renders coin and counter ------------------- #
 
-    if state['gotCoin'] == False:
-        window.blit(assets['coin'], state['coinPos'])
+    if statePing['gotCoin'] == False:
+        window.blit(assets['coin'], statePing['coinPos'])
     
-    coins = str(state['coinCounter'])
+    coins = str(statePing['coinCounter'])
     window.blit(assets['fontDef'].render(coins, True, (0, 0, 0)), (20, 15))
     window.blit(assets['fontDef'].render(coins, True, (255, 255, 255)), (18, 13))
 
     # ----------------- Renders birb ------------------- #
-    
-    if state['ballVel'][0] < 0:
-        flipBirb = pygame.transform.rotate(assets['flipBirb'], state['ballVel'][1] * 0.25)
-        window.blit(flipBirb, state['ballPos'])
 
-    else:
-        birb = pygame.transform.rotate(assets['birb'], -state['ballVel'][1] * 0.25)
-        window.blit(birb, state['ballPos'])
+    if statePing['fading'] == False:    
+        if statePing['ballVel'][0] < 0:
+            flipBirb = pygame.transform.rotate(assets['flipBirb'], statePing['ballVel'][1] * 0.25)
+            window.blit(flipBirb, statePing['ballPos'])
+
+        else:
+            birb = pygame.transform.rotate(assets['birb'], -statePing['ballVel'][1] * 0.25)
+            window.blit(birb, statePing['ballPos'])
 
     # ----------------- Renders Game Over ------------------- #
 
-    if state['hitPipe'] == True:
+    if statePing['hitPipe'] == True:
         window.blit(assets['fontDef'].render('Game Over', True, (0, 0, 0)), (165, 170))
         window.blit(assets['fontDef'].render('Game Over', True, (255, 255, 255)), (163, 168)) 
     
@@ -125,54 +129,111 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def current_game_state(state):
+def fades(window, assets, statePing, inOrOut):
 
-    if state['hitPipe'] == False:
+    # ----------------- Fade in or fade out ------------------- #
+
+    if inOrOut == 'in':
+        img1 = pygame.image.load('assets/fadeIn1.png')
+        img2 = pygame.image.load('assets/fadeIn2.png')
+        img3 = pygame.image.load('assets/fadeIn3.png')
+        img4 = pygame.image.load('assets/fadeIn4.png')
+    else:
+        img4 = pygame.image.load('assets/fadeIn1.png')
+        img3 = pygame.image.load('assets/fadeIn2.png')
+        img2 = pygame.image.load('assets/fadeIn3.png')
+        img1 = pygame.image.load('assets/fadeIn4.png')
+
+    # ------------------------------------------------- #
+
+    statePing['fading'] = True
+    statePing['last_updated'] = pygame.time.get_ticks()
+
+    # ----------------- Changes img every second or so ------------------- #
+
+    while statePing['fading']:
+
+        tiks = pygame.time.get_ticks()
+        deltaT = tiks - statePing['last_updated']
+
+        if deltaT > 5300:
+            statePing['fading'] = False
+
+        elif deltaT > 5000:
+            rendering_to_screen(window, assets, statePing)
+
+        elif deltaT > 4000 and deltaT < 4009:
+            rendering_to_screen(window, assets, statePing)
+            window.blit(img4, (0,0))
+
+        elif deltaT > 3000 and deltaT < 3009:
+            rendering_to_screen(window, assets, statePing)
+            window.blit(img3, (0,0))
+
+        elif deltaT > 2000 and deltaT < 2009:
+            rendering_to_screen(window, assets, statePing)
+            window.blit(img2, (0,0))
+
+        elif deltaT > 1000 and deltaT < 1009:
+            rendering_to_screen(window, assets, statePing)
+            window.blit(img1, (0,0))
+        
+        pygame.display.update()
+
+    # ------------------------------------------------- #
+
+    statePing['last_updated'] = pygame.time.get_ticks()
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def current_game_state(statePing):
+
+    if statePing['hitPipe'] == False:
 
         # ----------------- Makes birb bounce ------------------- #
 
         tiks = pygame.time.get_ticks()
-        deltaT = (tiks - state['last_updated']) / 1000
-        state['last_updated'] = tiks
+        deltaT = (tiks - statePing['last_updated']) / 1000
+        statePing['last_updated'] = tiks
 
-        state['ballPos'][0] = state['ballPos'][0] + state['ballVel'][0] * deltaT 
-        state['ballVel'][1] = state['ballVel'][1] + state['gravity'] * deltaT
-        state['ballPos'][1] = state['ballPos'][1] + state['ballVel'][1] * deltaT 
+        statePing['ballPos'][0] = statePing['ballPos'][0] + statePing['ballVel'][0] * deltaT 
+        statePing['ballVel'][1] = statePing['ballVel'][1] + statePing['gravity'] * deltaT
+        statePing['ballPos'][1] = statePing['ballPos'][1] + statePing['ballVel'][1] * deltaT 
 
         # ----------------- Makes birb not off screen ------------------- #
 
         # Horizontally
-        if state['ballPos'][0] >= state['windowSize'][0] - 35 :
-            state['ballVel'][0] *= -1
-            state['gotCoin'] = False
-            state['ballPos'][0] = state['windowSize'][0] - 35
-        elif state['ballPos'][0] < 0:
-            state['ballVel'][0] *= -1
-            state['gotCoin'] = False
-            state['ballPos'][0] = 2
+        if statePing['ballPos'][0] >= statePing['windowSize'][0] - 35 :
+            statePing['ballVel'][0] *= -1
+            statePing['gotCoin'] = False
+            statePing['ballPos'][0] = statePing['windowSize'][0] - 35
+        elif statePing['ballPos'][0] < 0:
+            statePing['ballVel'][0] *= -1
+            statePing['gotCoin'] = False
+            statePing['ballPos'][0] = 2
 
         # Vertically
-        if state['ballPos'][1] - 30 < 0 or state['ballPos'][1] + 30 >= state['windowSize'][1]:
-            state['ballVel'][1] *= -1
-            state['ballPos'][1] =  state['windowSize'][1] - 35
+        if statePing['ballPos'][1] - 30 < 0 or statePing['ballPos'][1] + 30 >= statePing['windowSize'][1]:
+            statePing['ballVel'][1] *= -1
+            statePing['ballPos'][1] =  statePing['windowSize'][1] - 35
 
         # ----------------- Colision with the pipe and coin ------------------- #
 
         # first checks if its in the pipe area horizontally
-        if state['ballPos'][0] + 32 > state['pipeUpperPos'][0] and state['ballPos'][0] < state['pipeUpperPos'][0] + 64:
+        if statePing['ballPos'][0] + 32 > statePing['pipeUpperPos'][0] and statePing['ballPos'][0] < statePing['pipeUpperPos'][0] + 64:
             # checks to see if its in the pipe, or got the coin
-            if state['ballPos'][1] < state['pipeUpperPos'][1] + 600 or state['ballPos'][1] > state['pipeLowerPos'][1] - 20:
-                state['hitPipe'] = True
+            if statePing['ballPos'][1] < statePing['pipeUpperPos'][1] + 600 or statePing['ballPos'][1] > statePing['pipeLowerPos'][1] - 20:
+                statePing['hitPipe'] = True
             # Coin collision
-            if state['ballPos'][1] < state['coinPos'][1] + 32 and state['ballPos'][1] > state['coinPos'][1]:
-                if state['gotCoin'] == False:
-                    state['gotCoin'] = True
-                    state['coinCounter'] += 1
+            if statePing['ballPos'][1] < statePing['coinPos'][1] + 32 and statePing['ballPos'][1] > statePing['coinPos'][1]:
+                if statePing['gotCoin'] == False:
+                    statePing['gotCoin'] = True
+                    statePing['coinCounter'] += 1
         
     # ----------------- Timer after hitting pipe ------------------- #
 
     tiks = pygame.time.get_ticks()
-    if state['last_updated'] + 3000 < tiks:
+    if statePing['last_updated'] + 500 < tiks:
         return False
 
     # ------------------------------------------------- #
@@ -180,6 +241,7 @@ def current_game_state(state):
     for ev in pygame.event.get():
 
         if ev.type == pygame.QUIT:
+            statePing['quitGame'] = True
             return False
 
     # ----------------- Key Presses ------------------- #
@@ -187,10 +249,10 @@ def current_game_state(state):
         if ev.type == pygame.KEYDOWN:
 
             # Controls the pipe
-            if ev.key == pygame.K_UP and state['mainPipePos'][1] >= -128:
-                state['mainPipePos'][1] -= state['pipeSpeedV']
-            if ev.key == pygame.K_DOWN and state['mainPipePos'][1] <= 350:
-                state['mainPipePos'][1] += state['pipeSpeedV']
+            if ev.key == pygame.K_UP and statePing['mainPipePos'][1] >= -128:
+                statePing['mainPipePos'][1] -= statePing['pipeSpeedV']
+            if ev.key == pygame.K_DOWN and statePing['mainPipePos'][1] <= 350:
+                statePing['mainPipePos'][1] += statePing['pipeSpeedV']
 
             # if ev.key == pygame.K_LEFT:
             #     state['mainPipePos'][0] -= state['pipeSpeed']
@@ -198,60 +260,66 @@ def current_game_state(state):
             #     state['mainPipePos'][0] += state['pipeSpeed']
 
             # For game reseting
-            if ev.key == pygame.K_r and state['hitPipe'] == True:
-                resets(state)
+            if ev.key == pygame.K_r and statePing['hitPipe'] == True:
+                resets(statePing)
     
     # ----------------- Updates pipe position ------------------- #
 
-    if state['coinCounter'] >= 10:
+    if statePing['coinCounter'] >= 10:
 
         # Horizontal speed
-        if state['coinCounter'] >= 50:
-            state['pipeSpeedH'] = 5
-        elif state['coinCounter'] >= 40:
-            state['pipeSpeedH'] = 4
-        elif state['coinCounter'] >= 30:
-            state['pipeSpeedH'] = 3
-        elif state['coinCounter'] >= 20:
-            state['pipeSpeedH'] = 2
-        elif state['coinCounter'] >= 10:
-            state['pipeSpeedH'] = 1
+        if statePing['coinCounter'] >= 50:
+            statePing['pipeSpeedH'] = 5
+        elif statePing['coinCounter'] >= 40:
+            statePing['pipeSpeedH'] = 4
+        elif statePing['coinCounter'] >= 30:
+            statePing['pipeSpeedH'] = 3
+        elif statePing['coinCounter'] >= 20:
+            statePing['pipeSpeedH'] = 2
+        elif statePing['coinCounter'] >= 10:
+            statePing['pipeSpeedH'] = 1
 
         # Direction of the movement
-        if state['mainPipePos'][0] <= 0:
-            state['pipeDirecton'] = 1
-        elif state['mainPipePos'][0] >= state['windowSize'][0] - 64: 
-            state['pipeDirecton'] = -1
-        state['mainPipePos'][0] += state['pipeSpeedH'] * state['pipeDirecton']
+        if statePing['mainPipePos'][0] <= 0:
+            statePing['pipeDirecton'] = 1
+        elif statePing['mainPipePos'][0] >= statePing['windowSize'][0] - 64: 
+            statePing['pipeDirecton'] = -1
+        statePing['mainPipePos'][0] += statePing['pipeSpeedH'] * statePing['pipeDirecton']
 
-    state['pipeUpperPos'][0] = state['mainPipePos'][0] 
-    state['pipeLowerPos'][0] = state['mainPipePos'][0]
-    state['coinPos'][0] = state['mainPipePos'][0] + 15
+    statePing['pipeUpperPos'][0] = statePing['mainPipePos'][0] 
+    statePing['pipeLowerPos'][0] = statePing['mainPipePos'][0]
+    statePing['coinPos'][0] = statePing['mainPipePos'][0] + 15
 
-    state['pipeUpperPos'][1] = state['mainPipePos'][1] -472
-    state['pipeLowerPos'][1] = state['mainPipePos'][1] + 250
-    state['coinPos'][1] = state['mainPipePos'][1] + 189
+    statePing['pipeUpperPos'][1] = statePing['mainPipePos'][1] -472
+    statePing['pipeLowerPos'][1] = statePing['mainPipePos'][1] + 250
+    statePing['coinPos'][1] = statePing['mainPipePos'][1] + 189
 
     return True
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def pingPongBirb(playerImg):
+def pingPongBirb(playerImg, window):
 
-    assets, state = inicialize(playerImg)
+    assets, statePing = inicialize(playerImg)
 
     # Custom window
     pygame.display.set_caption('Ping-pong Bird')
     icon = pygame.transform.scale(assets['birb'], (32, 32))
     pygame.display.set_icon(icon)
 
-    while current_game_state(state):
-        rendering_to_screen(window, assets, state)
+    #fades(window, assets, statePing, 'in')
+
+    while current_game_state(statePing):
+        rendering_to_screen(window, assets, statePing)
+
+    # if statePing['quitGame'] != True:
+    #     fades(window, assets, statePing, 'out')
+    
+    return statePing['coinCounter']
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 if __name__ == '__main__':
     window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
-    pingPongBirb(playerImg)
+    pingPongBirb(playerImg, window)
     pygame.quit()
-

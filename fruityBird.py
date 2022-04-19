@@ -1,5 +1,5 @@
 import pygame, random, time
-from pingPongBird import pingPongBirb
+from pingPongBird import *
 
 #temporary
 playerImg = {
@@ -53,7 +53,7 @@ def inicialize(playerImg):
         'coinCounter': 0,
         'lastUpdated': 0,
 
-        'collectCloud': False,
+        'collectCloud': True,
         'collectLychee': False
 
     }
@@ -89,7 +89,10 @@ def current_game_state(state):
     # ----------------- Collectables ------------------- #
 
     if state['collectCloud'] == True:
-        pingPongBirb(playerImg)
+        fades(window, assets, state, 'out')
+        coins = pingPongBirb(playerImg, window)
+        state['coinCounter'] += coins
+        fades(window, assets, state, 'in')
         state['collectCloud'] = False
     
     if state['collectLychee'] == True:
@@ -110,7 +113,6 @@ def current_game_state(state):
     if tiks % 2000 == 0:
         spawnNewPipe()
 
-    
     if state['birbPos'][1] > 1200:
         state['birbPos'][1] = 1000
 
@@ -161,6 +163,7 @@ if __name__ == '__main__':
     icon = pygame.transform.scale(assets['birb'], (32, 32))
     pygame.display.set_icon(icon)
 
+    rendering_to_screen(window, assets, state)
     while current_game_state(state):
         rendering_to_screen(window, assets, state)
 
