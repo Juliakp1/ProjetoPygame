@@ -1,5 +1,6 @@
 import pygame, random, time
-from pingPongBird import *
+from pingPongBird import ping_pong_birb
+from mainMenu import main_menu
 
 #temporary
 playerImg = {
@@ -45,7 +46,6 @@ def inicialize(playerImg):
 
     state = {
 
-        'windowSize': [1200, 600],
         'floorHeight': 520,
         'birbPos': [200, 300],
         'birbVel': -100,
@@ -60,15 +60,7 @@ def inicialize(playerImg):
 
     }
 
-    window = pygame.display.set_mode(state['windowSize'], vsync=True, flags=pygame.SCALED)
-
-    return window, assets, state
-
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
-
-def title_screen():
-    0
-    # TODO 
+    return assets, state
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -97,7 +89,7 @@ def current_game_state(state):
     # ----------------- Collectables ------------------- #
 
     if state['collectCloud'] == True:
-        state['coinCounter'] += pingPongBirb(playerImg, window)
+        state['coinCounter'] += ping_pong_birb(playerImg, window)
         state['collectCloud'] = False
     
     if state['collectLychee'] == True:
@@ -178,7 +170,10 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
 
 if __name__ == '__main__':
 
-    window, assets, state = inicialize(playerImg)
+    window = pygame.display.set_mode([1200, 600], vsync=True, flags=pygame.SCALED)
+
+    assets = main_menu(window)
+    assets, state = inicialize(playerImg)
 
     # Custom window
     pygame.display.set_caption('Fruity Bird')
@@ -186,10 +181,6 @@ if __name__ == '__main__':
     pygame.display.set_icon(icon)
 
     rendering_to_screen(window, assets, state)
-
-    while title_screen():
-        0
-        # TODO (probs new file or somethin)
 
     while current_game_state(state):
         rendering_to_screen(window, assets, state)

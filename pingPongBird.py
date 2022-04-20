@@ -240,7 +240,7 @@ def current_game_state(statePing):
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def pingPongBirb(playerImg, window):
+def ping_pong_birb(playerImg, window):
 
     assets, statePing = inicialize(playerImg)
 
@@ -258,5 +258,5 @@ def pingPongBirb(playerImg, window):
 
 if __name__ == '__main__':
     window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
-    pingPongBirb(playerImg, window)
+    ping_pong_birb(playerImg, window)
     pygame.quit()
