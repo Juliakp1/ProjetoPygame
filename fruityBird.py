@@ -2,65 +2,48 @@ import pygame, random, time
 from pingPongBird import ping_pong_birb
 from mainMenu import main_menu
 
-#temporary
-playerImg = {
-    'birb': 'assets/birbGba.png',
-    'pipe': 'assets/pipeGba.png',
-    'coin': 'assets/coinGba.png',
-    'bg': 'assets/bgGba.png'
-}
+# #temporary
+# playerImg = {
+#     'birb': 'assets/birbGba.png',
+#     'pipe': 'assets/pipeGba.png',
+#     'coin': 'assets/coinGba.png',
+#     'bg': 'assets/bgGba.png'
+# }
 
-def inicialize(playerImg):
+def inicialize():
     
     pygame.init()
     pygame.key.set_repeat(50)
-
-    # ----------------- Gets images and fonts ------------------- #
-
-    imgBirb = pygame.image.load(playerImg['birb'])
-    imgBirb = pygame.transform.scale(imgBirb, (34, 24))
-
-    imgPipe = pygame.image.load(playerImg['pipe'])
-    imgPipe = pygame.transform.scale(imgPipe, (64, 600))
-    pipeTop = pygame.transform.flip(imgPipe, False, True)
-
-    imgCoin = pygame.image.load(playerImg['coin'])
-    imgCoin = pygame.transform.scale(imgCoin, (32, 32))
-
-    imgBg = pygame.image.load(playerImg['bg'])
-
-    fontDef = pygame.font.Font('assets/pixelFont.ttf', 60)
-
-    # ----------------- Assets ------------------- #
-
-    assets = {
-        'birb': imgBirb,
-        'background': imgBg,
-        'pipeLow': imgPipe,
-        'pipeTop': pipeTop,
-        'fontDef': fontDef,
-        'coin': imgCoin,
-    }
 
     # ----------------- States ------------------- #
 
     state = {
 
-        'floorHeight': 520,
         'birbPos': [200, 300],
         'birbVel': -100,
+        'birbSize': [34, 24],
         'jumped': False,
         'gravity': 500,
-        'pipeSpeed': 1,
         'coinCounter': 0,
+        'floorHeight': 520,
         'lastUpdated': 0,
 
+        'pipeSpeed': 1,
+        'lastPipe': 0,
+        'pipeTimer': 2000,
+
+        'powerupTime': 10000,
         'collectCloud': False,
-        'collectLychee': False
+        'collectLychee': False,
+        'lastLychee': 0,
+        'collectCoffee': False,
+        'lastCoffee': 0,
+        'collectWatermelon': False,
+        'lastWatermelon': 0
 
     }
 
-    return assets, state
+    return state
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -74,46 +57,87 @@ def resets(state):
 
 def spawnNewPipe():
 
-    randHeight = random.randint(0, )
-    spawnHoriz = 1200
+    print('New pipe!')
 
-    mainPipePos = [spawnHoriz, randHeight]
+    # randHeight = random.randint(50, 550)
+    # spawnHoriz = 1200
+
+    # mainPipePos = [spawnHoriz, randHeight]
     # pipeUpperPos = [spawnHoriz, randHeight - 300]
     # pipeLowerPos = [spawnHoriz, randHeight + 100]
     # coinPos = [spawnHoriz, randHeight + 50]
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def current_game_state(state):
+def custom_window(assets):
 
-    # ----------------- Collectables ------------------- #
+    print(assets['birb'])
 
-    if state['collectCloud'] == True:
-        state['coinCounter'] += ping_pong_birb(playerImg, window)
-        state['collectCloud'] = False
-    
-    if state['collectLychee'] == True:
-        # alter stuff here
-        state['collectLychee'] = False
+    pygame.display.set_caption('Fruity Bird')
+    icon = pygame.transform.scale(assets['birb'], (32, 32))
+    pygame.display.set_icon(icon)
 
-    # ----------------- Birb Vertical ------------------- #
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def current_game_state(state, assets):
+
+    # ----------------- Time ------------------- #
 
     tiks = pygame.time.get_ticks()
     deltaT = (tiks - state['lastUpdated']) / 1000
     state['lastUpdated'] = tiks
+
+    # ----------------- * Collectables * ------------------- #
+
+    # -------- Cloud Portal ------- #
+
+    if state['collectCloud'] == True:
+        state['coinCounter'] += ping_pong_birb(assets, window)
+        state['collectCloud'] = False
+        state['birbPos'][1] = 100
+        state['lastUpdated'] = pygame.time.get_ticks()
+        custom_window(assets)
+    
+    # -------- Lychee ------- #
+    if state['collectLychee'] == True:
+        state['birbSize'] = [17, 12]
+        state['lastLychee'] = tiks
+        state['collectLychee'] = False
+    if tiks - state['lastLychee'] > state['powerupTime'] and tiks - state['lastLychee'] < state['powerupTime'] + 200:
+        state['birbSize'] = [34, 24]
+
+    # -------- Watermelon ------- #
+    if state['collectWatermelon'] == True:
+        state['birbSize'] = [68, 48]
+        state['lastWatermelon'] = tiks
+        state['collectWatermelon'] = False
+    if tiks - state['lastWatermelon'] > state['powerupTime'] and tiks - state['lastWatermelon'] < state['powerupTime'] + 200:
+        state['birbSize'] = [34, 24]
+    
+    # -------- Coffee ------- #  
+    if state['collectCoffee'] == True:
+        state['pipeSpeed'] = 3
+        state['lastCoffee'] = tiks
+        state['collectCoffee'] = False
+    if tiks - state['lastWatermelon'] > state['powerupTime'] and tiks - state['lastWatermelon'] < state['powerupTime'] + 200:
+        state['pipeSpeed'] = 1
+
+    # ----------------- Birb Vertical ------------------- #
 
     state['birbVel'] = state['birbVel'] + state['gravity'] * deltaT
     state['birbPos'][1] = state['birbPos'][1] + state['birbVel'] * deltaT 
 
     # ----------------- Pipe spawing -------------------- #
 
-    # if tiks % 2000 == 0:
-    #     spawnNewPipe()
+    if tiks - state['lastPipe'] > state['pipeTimer']:
+        spawnNewPipe()
+        state['lastPipe'] = tiks
+
 
     # ----------------- Floor detection ------------------- #
 
-    if state['birbPos'][1] > state['floorHeight'] - 28:
-        state['birbPos'][1] = state['floorHeight'] - 28
+    if state['birbPos'][1] > state['floorHeight'] - state['birbSize'][1]:
+        state['birbPos'][1] = state['floorHeight'] - state['birbSize'][1]
 
     # --------------------------------------------------- #
     
@@ -172,17 +196,15 @@ if __name__ == '__main__':
 
     window = pygame.display.set_mode([1200, 600], vsync=True, flags=pygame.SCALED)
 
+    # ----------------- Main menu and characters ------------------- #
     assets = main_menu(window)
-    assets, state = inicialize(playerImg)
-
-    # Custom window
-    pygame.display.set_caption('Fruity Bird')
-    icon = pygame.transform.scale(assets['birb'], (32, 32))
-    pygame.display.set_icon(icon)
+    
+    state = inicialize()
+    custom_window(assets)
 
     rendering_to_screen(window, assets, state)
 
-    while current_game_state(state):
+    while current_game_state(state, assets):
         rendering_to_screen(window, assets, state)
 
     pygame.quit()

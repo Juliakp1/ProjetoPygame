@@ -249,6 +249,8 @@ def ping_pong_birb(playerImg, window):
     icon = pygame.transform.scale(assets['birb'], (32, 32))
     pygame.display.set_icon(icon)
 
+    statePing['last_updated'] = pygame.time.get_ticks()
+
     while current_game_state(statePing):
         rendering_to_screen(window, assets, statePing)
     
