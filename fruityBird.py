@@ -2,14 +2,6 @@ import pygame, random, time
 from pingPongBird import ping_pong_birb
 from mainMenu import main_menu
 
-# #temporary
-# playerImg = {
-#     'birb': 'assets/birbGba.png',
-#     'pipe': 'assets/pipeGba.png',
-#     'coin': 'assets/coinGba.png',
-#     'bg': 'assets/bgGba.png'
-# }
-
 def inicialize():
     
     pygame.init()
@@ -70,8 +62,6 @@ def spawnNewPipe():
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def custom_window(assets):
-
-    print(assets['birb'])
 
     pygame.display.set_caption('Fruity Bird')
     icon = pygame.transform.scale(assets['birb'], (32, 32))

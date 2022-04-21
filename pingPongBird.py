@@ -1,4 +1,5 @@
 import pygame, time
+from mainMenu import loads_images
 
 #temporary
 playerImg = {
@@ -10,41 +11,15 @@ playerImg = {
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def inicialize(playerImg):
+def inicialize(assets):
 
     pygame.init()
     pygame.key.set_repeat(50)
 
-    # ----------------- Gets images and fonts ------------------- #
-
-    imgBirb = pygame.image.load(playerImg['birb'])
-    imgBirb = pygame.transform.scale(imgBirb, (34, 24))
-    flipBirb = pygame.transform.flip(imgBirb, True, False)
-
-    imgPipe = pygame.image.load(playerImg['pipe'])
-    imgPipe = pygame.transform.scale(imgPipe, (64, 600))
-    pipeTop = pygame.transform.flip(imgPipe, False, True)
-
-    imgCoin = pygame.image.load(playerImg['coin'])
-    imgCoin = pygame.transform.scale(imgCoin, (32, 32))
-
-    imgBg = pygame.image.load(playerImg['bg'])
-    imgFilter = pygame.image.load('assets/dreamscape.png')
-
-    fontDef = pygame.font.Font('assets/pixelFont.ttf', 60)
-
     # ----------------- Assets ------------------- #
 
-    assets = {
-        'birb': imgBirb,
-        'flipBirb': flipBirb,
-        'background': imgBg,
-        'filter': imgFilter,
-        'pipeLow': imgPipe,
-        'pipeTop': pipeTop,
-        'fontDef': fontDef,
-        'coin': imgCoin,
-    }
+    flipBirb = pygame.transform.flip(assets['birb'], True, False)
+    assets['flipBirb'] = flipBirb
 
     # ----------------- Game States ------------------- #
 
@@ -121,8 +96,6 @@ def rendering_to_screen(window: pygame.Surface, assets, statePing):
     if statePing['hitPipe'] == True:
         window.blit(assets['fontDef'].render('Game Over', True, (0, 0, 0)), (165, 170))
         window.blit(assets['fontDef'].render('Game Over', True, (255, 255, 255)), (163, 168)) 
-    
-    window.blit(assets['filter'], [0, 0])
 
     pygame.display.update()
 
@@ -240,9 +213,13 @@ def current_game_state(statePing):
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def ping_pong_birb(playerImg, window):
+def ping_pong_birb(assets, window):
 
-    assets, statePing = inicialize(playerImg)
+    print(playerImg)
+
+    assets = loads_images(playerImg)
+
+    assets, statePing = inicialize(assets)
 
     # Custom window
     pygame.display.set_caption('Ping-pong Bird')
