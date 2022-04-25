@@ -1,13 +1,15 @@
 import pygame, time
-from mainMenu import loads_images
+from classespingpong import birb_pong, coin_pong, pipe_pong
+from mainMenu import main_menu
 
-#temporary
-playerImg = {
-    'birb': 'assets/birbGba.png',
-    'pipe': 'assets/pipeGba.png',
-    'coin': 'assets/coinGba.png',
-    'bg': 'assets/bgGba.png'
-}
+# ----------------- Sounds ------------------- #
+
+pygame.mixer.init()
+
+coinNoise = pygame.mixer.Sound('assets/coinNoise.mp3')
+death = pygame.mixer.Sound('assets/death.mp3')
+flap = pygame.mixer.Sound('assets/flap.mp3')
+whoosh = pygame.mixer.Sound('assets/whoosh.mp3')
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -25,17 +27,21 @@ def inicialize(assets):
 
     statePing = {
         'windowSize': [1200, 600],
-        'mainPipePos': [580, 0],
-        'ballPos': [700, 200],
-        'ballVel': [200, 100],
-        'pipeUpperPos': [580, -472],
-        'pipeLowerPos': [580, 250],
-        'pipeSpeedV': 8,
-        'pipeSpeedH': 1,
-        'pipeDirecton': 1,
-        'coinPos': [596, 189],
-        'gotCoin': False,
-        'coinCounter': 0,
+
+        # ------ pipe ---- #
+        
+        'pipe_pong' : pipe_pong(0, -472, 250),
+
+        # ---- birb_pong ---- #
+
+        'birb_pong' : birb_pong(700, 200, 200, 100),
+
+        # ----- coin ------- #
+        #'coinPos': [596, 189],
+        #'gotCoin': False,
+        #'coinCounter': 0,
+        'coin_pong' : coin_pong(596, 189, False, 0),
+
         'last_updated': 0,
         'gravity': 90,
         'hitPipe': False,
@@ -50,11 +56,16 @@ def inicialize(assets):
 
 def resets(statePing):
     statePing['hitPipe'] = False
-    statePing['gotCoin'] = False
-    statePing['ballPos'] = [1000, 200]
-    statePing['ballVel'] = [200, 100]
-    statePing['mainPipePos'] = [580,0]
-    statePing['coinCounter'] = 0
+    
+
+    statePing['birb_pong'] = birb_pong(1000, 200, 200, 100)
+
+    statePing['pipe_pong'] = pipe_pong(0, -472, 250)
+    
+    #statePing['coinCounter'] = 0
+    #statePing['gotCoin'] = False
+    statePing['coin_pong'] = coin_pong(596, 189, False, 0)
+
     tiks = pygame.time.get_ticks()
     statePing['last_updated'] = tiks
     statePing['timer'] = 5000
@@ -67,29 +78,22 @@ def rendering_to_screen(window: pygame.Surface, assets, statePing):
     
     # ----------------- Renders pipe ------------------- #
 
-    window.blit(assets['pipeTop'], statePing['pipeUpperPos'])
-
-    window.blit(assets['pipeLow'], statePing['pipeLowerPos'])
+    statePing['pipe_pong'].rendering_to_screen(window, assets)
 
     # ----------------- Renders coin and counter ------------------- #
 
-    if statePing['gotCoin'] == False:
-        window.blit(assets['coin'], statePing['coinPos'])
+    if statePing['coin_pong'].collected == False:
+        window.blit(assets['coin'], statePing['coin_pong'].pos)
     
-    coins = str(statePing['coinCounter'])
+    coins = str(statePing['coin_pong'].counter)
     window.blit(assets['fontDef'].render(coins, True, (0, 0, 0)), (20, 15))
     window.blit(assets['fontDef'].render(coins, True, (255, 255, 255)), (18, 13))
 
     # ----------------- Renders birb ------------------- #
 
     if statePing['fading'] == False:    
-        if statePing['ballVel'][0] < 0:
-            flipBirb = pygame.transform.rotate(assets['flipBirb'], statePing['ballVel'][1] * 0.25)
-            window.blit(flipBirb, statePing['ballPos'])
-
-        else:
-            birb = pygame.transform.rotate(assets['birb'], -statePing['ballVel'][1] * 0.25)
-            window.blit(birb, statePing['ballPos'])
+        
+        statePing['birb_pong'].rendering_to_screen(window, assets)
 
     # ----------------- Renders Game Over ------------------- #
 
@@ -105,46 +109,22 @@ def current_game_state(statePing):
 
     if statePing['hitPipe'] == False:
 
-        # ----------------- Makes birb bounce ------------------- #
 
+        # -------------------- Time -----------------------#
+        
         tiks = pygame.time.get_ticks()
         deltaT = (tiks - statePing['last_updated']) / 1000
         statePing['last_updated'] = tiks
+        
+        # ----------- Makes birb bounce and birb not off screen ------------- #
 
-        statePing['ballPos'][0] = statePing['ballPos'][0] + statePing['ballVel'][0] * deltaT 
-        statePing['ballVel'][1] = statePing['ballVel'][1] + statePing['gravity'] * deltaT
-        statePing['ballPos'][1] = statePing['ballPos'][1] + statePing['ballVel'][1] * deltaT 
-
-        # ----------------- Makes birb not off screen ------------------- #
-
-        # Horizontally
-        if statePing['ballPos'][0] >= statePing['windowSize'][0] - 35 :
-            statePing['ballVel'][0] *= -1
-            statePing['gotCoin'] = False
-            statePing['ballPos'][0] = statePing['windowSize'][0] - 35
-        elif statePing['ballPos'][0] < 0:
-            statePing['ballVel'][0] *= -1
-            statePing['gotCoin'] = False
-            statePing['ballPos'][0] = 2
-
-        # Vertically
-        if statePing['ballPos'][1] - 30 < 0 or statePing['ballPos'][1] + 30 >= statePing['windowSize'][1]:
-            statePing['ballVel'][1] *= -1
-            statePing['ballPos'][1] =  statePing['windowSize'][1] - 35
+        statePing['birb_pong'].atualiza_status(deltaT, statePing)
 
         # ----------------- Colision with the pipe and coin ------------------- #
 
-        # first checks if its in the pipe area horizontally
-        if statePing['ballPos'][0] + 32 > statePing['pipeUpperPos'][0] and statePing['ballPos'][0] < statePing['pipeUpperPos'][0] + 64:
-            # checks to see if its in the pipe, or got the coin
-            if statePing['ballPos'][1] < statePing['pipeUpperPos'][1] + 600 or statePing['ballPos'][1] > statePing['pipeLowerPos'][1] - 20:
-                statePing['hitPipe'] = True
-            # Coin collision
-            if statePing['ballPos'][1] < statePing['coinPos'][1] + 32 and statePing['ballPos'][1] > statePing['coinPos'][1]:
-                if statePing['gotCoin'] == False:
-                    statePing['gotCoin'] = True
-                    statePing['coinCounter'] += 1
-        
+        statePing['hitPipe'] = (statePing['pipe_pong']).verifica_colisao(statePing['birb_pong']) 
+        statePing['coin_pong'].verifica_colisao(statePing['birb_pong'])
+    
     # ----------------- Timer after hitting pipe ------------------- #
 
     tiks = pygame.time.get_ticks()
@@ -164,11 +144,7 @@ def current_game_state(statePing):
         if ev.type == pygame.KEYDOWN:
 
             # Controls the pipe
-            if ev.key == pygame.K_UP and statePing['mainPipePos'][1] >= -128:
-                statePing['mainPipePos'][1] -= statePing['pipeSpeedV']
-            if ev.key == pygame.K_DOWN and statePing['mainPipePos'][1] <= 350:
-                statePing['mainPipePos'][1] += statePing['pipeSpeedV']
-
+            statePing['pipe_pong'].movimenta(ev)
             # if ev.key == pygame.K_LEFT:
             #     state['mainPipePos'][0] -= state['pipeSpeed']
             # if ev.key == pygame.K_RIGHT:
@@ -179,45 +155,14 @@ def current_game_state(statePing):
                 resets(statePing)
     
     # ----------------- Updates pipe position ------------------- #
-
-    if statePing['coinCounter'] >= 10:
-
-        # Horizontal speed
-        if statePing['coinCounter'] >= 50:
-            statePing['pipeSpeedH'] = 5
-        elif statePing['coinCounter'] >= 40:
-            statePing['pipeSpeedH'] = 4
-        elif statePing['coinCounter'] >= 30:
-            statePing['pipeSpeedH'] = 3
-        elif statePing['coinCounter'] >= 20:
-            statePing['pipeSpeedH'] = 2
-        elif statePing['coinCounter'] >= 10:
-            statePing['pipeSpeedH'] = 1
-
-        # Direction of the movement
-        if statePing['mainPipePos'][0] <= 0:
-            statePing['pipeDirecton'] = 1
-        elif statePing['mainPipePos'][0] >= statePing['windowSize'][0] - 64: 
-            statePing['pipeDirecton'] = -1
-        statePing['mainPipePos'][0] += statePing['pipeSpeedH'] * statePing['pipeDirecton']
-
-    statePing['pipeUpperPos'][0] = statePing['mainPipePos'][0] 
-    statePing['pipeLowerPos'][0] = statePing['mainPipePos'][0]
-    statePing['coinPos'][0] = statePing['mainPipePos'][0] + 15
-
-    statePing['pipeUpperPos'][1] = statePing['mainPipePos'][1] -472
-    statePing['pipeLowerPos'][1] = statePing['mainPipePos'][1] + 250
-    statePing['coinPos'][1] = statePing['mainPipePos'][1] + 189
+    
+    statePing['pipe_pong'].atualiza_status(statePing, statePing['coin_pong'])
 
     return True
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def ping_pong_birb(assets, window):
-
-    print(playerImg)
-
-    assets = loads_images(playerImg)
 
     assets, statePing = inicialize(assets)
 
@@ -231,11 +176,12 @@ def ping_pong_birb(assets, window):
     while current_game_state(statePing):
         rendering_to_screen(window, assets, statePing)
     
-    return statePing['coinCounter']
+    return statePing['coin_pong'].counter
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 if __name__ == '__main__':
     window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
-    ping_pong_birb(playerImg, window)
+    assets = main_menu(window)
+    ping_pong_birb(assets, window)
     pygame.quit()

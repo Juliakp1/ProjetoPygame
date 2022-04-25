@@ -1,7 +1,6 @@
 import pygame, random, time
-from testepingpong import ping_pong_birb
+from pingPongBird import ping_pong_birb
 from mainMenu import main_menu
-from classes1 import *
 
 def inicialize():
     
@@ -11,25 +10,22 @@ def inicialize():
     # ----------------- States ------------------- #
 
     state = {
-        'birb' : birb(200, 300, 34, 24, -100),
 
-
+        'birbPos': [200, 300],
+        'birbVel': -100,
+        'birbSize': [34, 24],
+        'jumped': False,
         'gravity': 500,
         'coinCounter': 0,
         'floorHeight': 520,
         'lastUpdated': 0,
-        'coins': [
 
-        ],
-        'lastCoin' : True,
+        'pipeSpeed': 1,
         'lastPipe': 0,
-        'pipeTimer': 5000,
-        'pipes': [
-
-        ],
+        'pipeTimer': 2000,
 
         'powerupTime': 10000,
-        'collectCloud': True,
+        'collectCloud': False,
         'collectLychee': False,
         'lastLychee': 0,
         'collectCoffee': False,
@@ -46,11 +42,22 @@ def inicialize():
 def resets(state):
     state['hitPipe'] = False
     state['coinCounter'] = 0
-    state['birb'].x , state['birb'].y = 200, 300
-    state['birb'].vel = 100
+    state['birbPos'] = [200, 300]
+    state['birbVel'] = 100
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
+def spawnNewPipe():
+
+    print('New pipe!')
+
+    # randHeight = random.randint(50, 550)
+    # spawnHoriz = 1200
+
+    # mainPipePos = [spawnHoriz, randHeight]
+    # pipeUpperPos = [spawnHoriz, randHeight - 300]
+    # pipeLowerPos = [spawnHoriz, randHeight + 100]
+    # coinPos = [spawnHoriz, randHeight + 50]
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -77,25 +84,25 @@ def current_game_state(state, assets):
     if state['collectCloud'] == True:
         state['coinCounter'] += ping_pong_birb(assets, window)
         state['collectCloud'] = False
-        state['birb'].y = 100
+        state['birbPos'][1] = 100
         state['lastUpdated'] = pygame.time.get_ticks()
         custom_window(assets)
     
     # -------- Lychee ------- #
     if state['collectLychee'] == True:
-        state['birb'].size = [17, 12]
+        state['birbSize'] = [17, 12]
         state['lastLychee'] = tiks
         state['collectLychee'] = False
     if tiks - state['lastLychee'] > state['powerupTime'] and tiks - state['lastLychee'] < state['powerupTime'] + 200:
-        state['birb'].size = [34, 24]
+        state['birbSize'] = [34, 24]
 
     # -------- Watermelon ------- #
     if state['collectWatermelon'] == True:
-        state['birb'].size = [68, 48]
+        state['birbSize'] = [68, 48]
         state['lastWatermelon'] = tiks
         state['collectWatermelon'] = False
     if tiks - state['lastWatermelon'] > state['powerupTime'] and tiks - state['lastWatermelon'] < state['powerupTime'] + 200:
-        state['birb'].size = [34, 24]
+        state['birbSize'] = [34, 24]
     
     # -------- Coffee ------- #  
     if state['collectCoffee'] == True:
@@ -105,35 +112,23 @@ def current_game_state(state, assets):
     if tiks - state['lastWatermelon'] > state['powerupTime'] and tiks - state['lastWatermelon'] < state['powerupTime'] + 200:
         state['pipeSpeed'] = 1
 
+    # ----------------- Birb Vertical ------------------- #
+
+    state['birbVel'] = state['birbVel'] + state['gravity'] * deltaT
+    state['birbPos'][1] = state['birbPos'][1] + state['birbVel'] * deltaT 
+
     # ----------------- Pipe spawing -------------------- #
 
     if tiks - state['lastPipe'] > state['pipeTimer']:
+        spawnNewPipe()
         state['lastPipe'] = tiks
-        state['pipes'].append(pipe(random.randint(50,370)))
-        state['pipeTimer'] = random.choice(range(3000, 5000, 500))
-        state['lastCoin'] = True
-    
-    if tiks - (state['lastPipe']) > state['pipeTimer']/2 and state['lastCoin']:
-        state['coins'].append(coin(1200, random.randint(32, 480)))
-        state['lastCoin'] = False
-    
-    # ----------------- Birb Vertical, Floor  and teto detection ------------------- #
 
-    state['birb'].atualiza_status(deltaT, state['floorHeight'], state['gravity'])
-    
-    for i in state['pipes']:
-        i.atualiza_status(deltaT)
-        if i.verifica_colisao(state['birb']):
-            return False
-        if state['birb'].x - state['birb'].size[0] > i.upper_pos[0] and i.pont == False:
-            state['coinCounter'] += 1
-            i.pont = True
-    
-    for c in state['coins']:
-        c.atualiza_status(deltaT)
-        if c.verifica_colisao(state['birb']):
-            state['coins'].remove(c)
-            state['coinCounter'] +=1
+
+    # ----------------- Floor detection ------------------- #
+
+    if state['birbPos'][1] > state['floorHeight'] - state['birbSize'][1]:
+        state['birbPos'][1] = state['floorHeight'] - state['birbSize'][1]
+
     # --------------------------------------------------- #
     
     for ev in pygame.event.get():
@@ -145,16 +140,16 @@ def current_game_state(state, assets):
         if ev.type == pygame.KEYDOWN:
             
             # Jumping (only once)
-            if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w) and state['birb'].jumped == False:
-                state['birb'].vel = -200
-                state['birb'].jumped = True
+            if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w) and state['jumped'] == False:
+                state['birbVel'] = -200
+                state['jumped'] = True
 
             if ev.key == pygame.K_r and state['hitPipe'] == True:
                 resets(state)
         
         if ev.type == pygame.KEYUP:
             if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w):
-                state['birb'].jumped = False
+                state['jumped'] = False
 
 
     return True
@@ -170,14 +165,13 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
     pygame.draw.polygon(window, (200, 0, 0), [(0, state['floorHeight']), (1200, state['floorHeight']), (1200, 600), (0, 600)])
 
     # Bird
-    state['birb'].desenha(assets, window)
+    if state['birbVel'] > 450:
+        birbRotation = -90
+    else:
+        birbRotation = -state['birbVel'] * 0.2
 
-    # pipe
-    for i in state['pipes']:
-        i.desenha(window, assets)
-    
-    for c in state['coins']:
-        c.desenha(window, assets)
+    birb = pygame.transform.rotate(assets['birb'], birbRotation)
+    window.blit(birb, state['birbPos'])
 
     # Coin counter
     coins = str(state['coinCounter'])

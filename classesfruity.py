@@ -32,13 +32,15 @@ class birb:
         birb = pygame.transform.rotate(assets['birb'], birbRotation)
         window.blit(birb, [self.x, self.y ])
 
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
 class pipe:
     def __init__(self, h):
         self.horiz = 1200
         self.height = h
         self.upper_pos = [self.horiz, self.height -600]
         self.lower_pos = [self.horiz, self.height +150]
-        self.vel = 50
+        self.vel = 100
         self.pont = False
     
     # ------ atualiza posição horizontal dos canos ------- #
@@ -64,6 +66,8 @@ class pipe:
             return True
         return False
     
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
 class coin:
     
     def __init__(self, coord_x, coord_y):
@@ -71,7 +75,7 @@ class coin:
         self.y = coord_y
         self.w = 32
         self.h = 32
-        self.vel = 50
+        self.vel = 100
         
     # ------ atualiza posição horizontal das moedas ------- #
     

@@ -1,5 +1,16 @@
 import pygame
 
+
+# ----------------- Sounds ------------------- #
+
+pygame.mixer.init()
+
+coinNoise = pygame.mixer.Sound('assets/coinNoise.mp3')
+death = pygame.mixer.Sound('assets/death.mp3')
+flap = pygame.mixer.Sound('assets/flap.mp3')
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
 class birb_pong :
     def __init__(self, coord_x, coord_y, vel_h, vel_v):
         self.pos_X = coord_x
@@ -32,15 +43,20 @@ class birb_pong :
             self.vel_H *= -1
             statePing['coin_pong'].collected = False
             self.pos_X = statePing['windowSize'][0] - 35
+            pygame.mixer.Sound.play(flap)
         elif self.pos_X < 0:
             self.vel_H *= -1
             statePing['coin_pong'].collected = False
             self.pos_X = 2
+            pygame.mixer.Sound.play(flap)
 
         # Vertically
         if self.pos_Y - 30 < 0 or self.pos_Y + 30 >= statePing['windowSize'][1]:
             self.vel_V *= -1
             self.pos_Y =  statePing['windowSize'][1] - 35
+            pygame.mixer.Sound.play(flap)
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
     
 class pipe_pong:
     def __init__(self, main_y, upper_y, lower_y):
@@ -66,6 +82,7 @@ class pipe_pong:
         upper_pipe = pygame.Rect(self.upper_pos[0], self.upper_pos[1], 64, 600 )
         lower_pipe = pygame.Rect(self.lower_pos[0], self.lower_pos[1], 64, 600 )
         if pygame.Rect.colliderect(bird, upper_pipe) or pygame.Rect.colliderect(bird, lower_pipe):
+            pygame.mixer.Sound.play(death)
             return True
         return False
 
@@ -116,6 +133,7 @@ class pipe_pong:
         self.upper_pos[1] = self.main_pos[1] -472
         self.lower_pos[1] = self.main_pos[1] + 250
         
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 class coin_pong:
     def __init__(self, coord_x, coord_y, gotCoin, coinCounter):
@@ -132,4 +150,5 @@ class coin_pong:
         if pygame.Rect.colliderect(bird, coin) and self.collected == False:
             self.collected = True
             self.counter += 1
+            pygame.mixer.Sound.play(coinNoise)
 
