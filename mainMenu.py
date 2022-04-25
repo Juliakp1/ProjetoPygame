@@ -1,10 +1,20 @@
-import pygame, time
+import pygame, json
+from filePathDump import filePaths
 pygame.mixer.init
 
 # The default values
-playerImg = {
+playerImgDef = {
     'birb': 'assets/birbOG.png',
     'pipe': 'assets/pipeOG.png',
+    'coin': 'assets/coinOG.png',
+    'bg': 'assets/bgOG.png',
+    'floor': 'assets/floorOG.png'
+}
+
+#currently selected
+playerImg = {
+    'birb': 'assets/birbGba.png',
+    'pipe': 'assets/pipeGba.png',
     'coin': 'assets/coinOG.png',
     'bg': 'assets/bgOG.png',
     'floor': 'assets/floorOG.png'
@@ -14,97 +24,68 @@ playerImg = {
 
 def inicialize():
 
+    pygame.init()
+
     # ----------------- Renames Window ------------------- #
 
     pygame.display.set_caption('Main Menu')
-    icon = pygame.image.load(playerImg['birb'])
+    icon = pygame.image.load(playerImgDef['birb'])
     icon = pygame.transform.scale(icon, (32, 32))
     pygame.display.set_icon(icon)
 
-    # ----------------- Birds ------------------- #
-    birds = [
-        'assets/birbOG.png',
-        'assets/birbPink.png',
-        'assets/birbPurp.png',
-        'assets/birbBaby.png',
-        'assets/birbGba.png',
-        'assets/birbGrey.png',
-        'assets/birbRainbow.png',
-        'assets/birbStone.png',
-        'assets/birbNega.png',
-        'assets/birbSepia.png',
-        'assets/birbCrystal.png',
-        'assets/birbGhost.png',
-        'assets/birbLight.png',
-        'assets/birbShadow.png'
-    ]
+    # ----------------- Loads external stuff ------------------- #
 
-    # ----------------- Pipes ------------------- #
-    pipes = [
-        'assets/pipeOG.png',
-        'assets/pipePink.png',
-        'assets/pipePurp.png',
-        'assets/pipeBlue.png',
-        'assets/pipeGba.png',
-        'assets/pipeGrey.png',
-        'assets/pipeRainbow.png',
-        'assets/pipeSepia.png',
-        'assets/pipeLight.png',
-        'assets/pipeShadow.png'
-    ]
+    birds, pipes, coins, backgrounds, floors = filePaths()
 
-    # ----------------- Coins ------------------- #
-    coins = [ 
-        'assets/coinOG.png',
-        'assets/coinPurp.png',
-        'assets/coinBaby.png',
-        'assets/coinGba.png',
-        'assets/coinGrey.png',
-        'assets/coinRainbow.png',
-        'assets/coinStone.png',
-        'assets/coinNega.png',
-        'assets/coinSepia.png',
-        'assets/coinMine.png',
-        'assets/coinLight.png',
-        'assets/coinShadow.png'
-    ]
+    with open('ranking.json', 'r') as arquivo_json:
+        ranksString = arquivo_json.read()
+    ranking = json.loads(ranksString)
 
-    # ----------------- Backgrounds ------------------- #
-    backgrounds = [
-        'assets/bgOG.png',
-        'assets/bgGba.png',
-        'assets/bgSepia.png',
-        'assets/bgMine.png',
-        'assets/bgLight.png',
-        'assets/bgShadow.png'
-    ]
-
-    # ----------------- Floors ------------------- #
-    floors = [
-        'assets/floorOG.png'
-        'assets/floorGba.png'
-        'assets/floorSepia.png'
-    ]
+    tiks = pygame.time.get_ticks()
 
     # ----------------- States ------------------- #
+
     state = {
 
         'menus': {
-            'Main menu': ['Start Game !', 'Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors'],
+            'Main menu': ['Start Game !', 'Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors', 'Reset Skins', 'Rankings', 'Exit'],
             'Birds': birds,
             'Pipes': pipes,
             'Coins': coins,
             'Backgrounds': backgrounds,
             'Floors': floors,
+            'Rankings': ranking,
+            'Reset Skins': ['assets/aaaaaFail.png'],
+            'Exit': ['assets/aaaFail.png']
         },
         'currentMenu': 'Main menu',
         'currentItem': 0,
         'currentMenuIndex': 0,
-        'inMainMenu': True
+        'inMainMenu': True,
+        'pressedKey': False,
+
+        'lastUpdated': tiks,
+        'birbPos': [500, 300],
+        'birbVel': -100,
+        'birbFloor': 380
     
     }
 
     return state
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def printRankings(state, assets, window):
+
+    i = 0
+    for scores in state['menus']['Rankings'].items():
+        scores = str(scores)
+        scores = scores [1:(len(scores)-1)]
+        text_image = assets['fontDef'].render(scores, True, (0, 0, 0))
+        window.blit(text_image, (10, 10 + (i + 1) * 30))
+        text_image = assets['fontDef'].render(scores, True, (255, 255, 255))
+        window.blit(text_image, (8, 8 + (i + 1) * 30))
+        i += 1
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -127,7 +108,8 @@ def loads_images(playerImg):
     imgFloor = pygame.image.load(playerImg['floor'])
 
     pygame.font.init()
-    fontDef = pygame.font.Font('assets/pixelFont.ttf', 60)
+    fontDef = pygame.font.Font('assets/pixelFont.ttf', 30)
+    fontDef_big = pygame.font.Font('assets/pixelFont.ttf', 60)
 
     # ----------------- Assets ------------------- #
 
@@ -137,11 +119,46 @@ def loads_images(playerImg):
         'pipeLow': imgPipe,
         'pipeTop': pipeTop,
         'fontDef': fontDef,
+        'fontDef_big' : fontDef_big,
         'coin': imgCoin,
         'floor': imgFloor
     }
 
     return assets
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def removesUnwated(string, group):
+
+    if group == 'Backgrounds':
+        extra = 'bgg'
+    else:
+        extra = group
+
+    lenStart = len(extra) + len('assets/') - 1
+    lenEnd = len(string) - 4
+    finalString = string[lenStart:lenEnd]
+
+    return finalString
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def renderBirb(state, assets, window):
+
+    tiks = pygame.time.get_ticks()
+    deltaT = (tiks - state['lastUpdated']) /1000
+    state['lastUpdated'] = tiks
+
+    state['birbVel'] = state['birbVel'] + 300 * deltaT
+    state['birbPos'][1] = state['birbPos'][1] + state['birbVel'] * deltaT 
+
+    if state['birbPos'][1] > state['birbFloor']:
+        state['birbVel'] = -230
+        state['birbPos'][1] = state['birbFloor'] - 1
+
+    birbRotation = -state['birbVel'] * 0.2
+    birb = pygame.transform.rotate(assets['birb'], birbRotation)
+    window.blit(birb, state['birbPos'])
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -155,7 +172,8 @@ def current_game_state(state, assets):
         if event.type == pygame.KEYDOWN:
 
             # ----------------- Enters a menu ------------------- #
-            if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN or event.key == pygame.K_e:
+            if (event.key == pygame.K_SPACE or event.key == pygame.K_RETURN or event.key == pygame.K_e) and state['pressedKey'] == False:
+                state['pressedKey'] = True
 
                 if state['inMainMenu'] == True:
 
@@ -163,19 +181,20 @@ def current_game_state(state, assets):
                         return False
                     else:
                         state['currentMenu'] = state['menus'][state['currentMenu']][state['currentItem']]
+                        state['currentMenuIndex'] = state['currentItem']
                         state['inMainMenu'] = False
 
                 # ----------------- Loads selected images ------------------- #
                 else:
 
                     # Bird
-                    if state['currentItem'] == 1:
+                    if state['currentMenuIndex'] == 1:
                         imgBirb = pygame.image.load(state['menus']['Birds'][state['currentItem']])
                         imgBirb = pygame.transform.scale(imgBirb, (34, 24))
                         assets['birb'] = imgBirb
 
                     # Pipes
-                    elif state['currentItem'] == 2:
+                    elif state['currentMenuIndex'] == 2:
                         imgPipe = pygame.image.load(state['menus']['Pipes'][state['currentItem']])
                         imgPipe = pygame.transform.scale(imgPipe, (64, 600))
                         pipeTop = pygame.transform.flip(imgPipe, False, True)
@@ -183,39 +202,51 @@ def current_game_state(state, assets):
                         assets['pipeTop'] = pipeTop
                     
                     # Coins
-                    elif state['currentItem'] == 3:
+                    elif state['currentMenuIndex'] == 3:
                         imgCoin = pygame.image.load(state['menus']['Coins'][state['currentItem']])
                         imgCoin = pygame.transform.scale(imgCoin, (32, 32))
                         assets['coin'] = imgCoin
 
                     # Bg
-                    elif state['currentItem'] == 4:
-                        assets['bg'] = pygame.image.load(state['menus']['Backgrounds'][state['currentItem']])
+                    elif state['currentMenuIndex'] == 4:
+                        assets['background'] = pygame.image.load(state['menus']['Backgrounds'][state['currentItem']])
 
                     # Floors
-                    elif state['currentItem'] == 5:
+                    elif state['currentMenuIndex'] == 5:
                         assets['floor'] = pygame.image.load(state['menus']['Floors'][state['currentItem']])
 
                 state['currentItem'] = 0
             
             # ----------------- Goes up and down menus ------------------- #
 
-            if event.key == pygame.K_UP:
+            if event.key == pygame.K_UP and state['pressedKey'] == False:
                 state['currentItem'] -= 1
                 if state['currentItem'] < 0:
                     state['currentItem'] = len(state['menus'][state['currentMenu']]) - 1
+                state['pressedKey'] = True
 
-            if event.key == pygame.K_DOWN:
+            if event.key == pygame.K_DOWN and state['pressedKey'] == False:
                 state['currentItem'] += 1
                 if state['currentItem'] >= len(state['menus'][state['currentMenu']]):
                     state['currentItem'] = 0
+                state['pressedKey'] = True
 
             if event.key == pygame.K_ESCAPE:
-                state['currentMenu'] = 'Start Game !'
+                state['currentMenu'] = 'Main menu'
                 state['currentMenuIndex'] = 0
                 state['currentItem'] = 0
+                state['inMainMenu'] = True
+        
+        if event.type == pygame.KEYUP:
+            state['pressedKey'] = False
 
-    print(state['currentMenu'])
+    if state['currentMenu'] == 'Reset Skins':
+        assets = loads_images(playerImgDef)
+        state['currentMenu'] = 'Main menu'
+        state['currentMenuIndex'] = 0
+
+    if state['currentMenuIndex'] == 8:
+        return False
 
     return True
 
@@ -224,20 +255,37 @@ def current_game_state(state, assets):
 def render_to_screen(state, assets, window):
     
     window.blit(assets['background'], [0, 0])
+    window.blit(assets['pipeTop'], (600, -300))
+    window.blit(assets['pipeLow'], (600, 400))
+    window.blit(assets['coin'], (615, 340))
+    window.blit(assets['floor'], [0, 520])
 
-    window.blit(assets['fontDef'].render('Fruity Bird', True, (0, 0, 0)), (750, 170))
-    window.blit(assets['fontDef'].render('Fruity Bird', True, (255, 255, 255)), (748, 168)) 
+    renderBirb(state, assets, window)
 
+    window.blit(assets['fontDef_big'].render('Fruity Bird', True, (0, 0, 0)), (795, 150))
+    window.blit(assets['fontDef_big'].render('Fruity Bird', True, (255, 255, 255)), (793, 148)) 
+
+    
     for i in range(len(state['menus'][state['currentMenu']])):
-        text = state['menus'][state['currentMenu']][i]
-        if i == state['currentItem']:
-            text = '> ' + text
+
+        if state['currentMenu'] == 'Rankings':
+            printRankings(state, assets, window)
+
         else:
-            text = '  ' + text
-        text_image = assets['fontDef'].render(text, True, (0, 0, 0))
-        window.blit(text_image, (10, 10 + (i + 1) * 60))
-        text_image = assets['fontDef'].render(text, True, (255, 255, 255))
-        window.blit(text_image, (8, 8 + (i + 1) * 60))
+            if state['currentMenu'] == 'Main menu':
+                text = state['menus'][state['currentMenu']][i]
+            else:
+                text = removesUnwated(state['menus'][state['currentMenu']][i], state['currentMenu'])
+
+            # ------------- Shows the little '>' -------------- #
+            if i == state['currentItem']:
+                text = '> ' + text
+            else:
+                text = '  ' + text
+            text_image = assets['fontDef'].render(text, True, (0, 0, 0))
+            window.blit(text_image, (10, 10 + (i + 1) * 30))
+            text_image = assets['fontDef'].render(text, True, (255, 255, 255))
+            window.blit(text_image, (8, 8 + (i + 1) * 30))
 
     pygame.display.update()
 
