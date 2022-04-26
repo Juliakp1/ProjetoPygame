@@ -2,7 +2,15 @@ import pygame, json
 from filePathDump import filePaths
 pygame.mixer.init
 
-# The default values
+# ----------------- Sounds ------------------- #
+
+pygame.mixer.init()
+
+menuNoise = pygame.mixer.Sound('assets/menuClick.mp3')
+
+
+# ----------------- Def Images ------------------- #
+
 playerImgDef = {
     'birb': 'assets/birbOG.png',
     'pipe': 'assets/pipeOG.png',
@@ -181,6 +189,7 @@ def current_game_state(state, assets):
             # ----------------- Enters a menu ------------------- #
             if (event.key == pygame.K_SPACE or event.key == pygame.K_RETURN or event.key == pygame.K_e) and state['pressedKey'] == False:
                 state['pressedKey'] = True
+                pygame.mixer.Sound.play(menuNoise)
 
                 if state['inMainMenu'] == True:
 
@@ -330,5 +339,5 @@ def main_menu(window):
 if __name__ == '__main__':
 
     window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
-    main_menu(window, playerImgDef)
+    main_menu(window)
     pygame.quit()

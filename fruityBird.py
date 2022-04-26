@@ -42,10 +42,13 @@ def inicialize():
         'collectCloud': False,
         'collectLychee': False,
         'lastLychee': 0,
+        'collectWatermelon': False,
+        'lastWatermelon': 0,
         'collectCoffee': False,
         'lastCoffee': 0,
-        'collectWatermelon': False,
-        'lastWatermelon': 0
+        'collectJaca': False,
+        'lastJaca': 0,
+        'collectStar': False,
 
     }
 
@@ -116,11 +119,36 @@ def current_game_state(state, assets):
     
     # -------- Coffee ------- #  
     if state['collectCoffee'] == True:
-        state['pipeSpeed'] = 3
+        for i in state['pipes']:
+            i.vel *= 2
+        for i in state['coins']:
+            i.vel *= 2
         state['lastCoffee'] = tiks
         state['collectCoffee'] = False
-    if tiks - state['lastWatermelon'] > state['powerupTime'] and tiks - state['lastWatermelon'] < state['powerupTime'] + 200:
-        state['pipeSpeed'] = 1
+    if tiks - state['lastCoffee'] > state['powerupTime'] and tiks - state['lastCoffee'] < state['powerupTime'] + 200:
+        for i in state['pipes']:
+            i.vel /= 2
+        for i in state['coins']:
+            i.vel /= 2
+
+    # -------- Jaca ------- #  
+    if state['collectJaca'] == True:
+        for i in state['pipes']:
+            i.vel /= 2
+        for i in state['coins']:
+            i.vel /= 2
+        state['lastJaca'] = tiks
+        state['collectJaca'] = False
+    if tiks - state['lastJaca'] > state['powerupTime'] and tiks - state['lastJaca'] < state['powerupTime'] + 200:
+        for i in state['pipes']:
+            i.vel *= 2
+        for i in state['coins']:
+            i.vel *= 2
+
+    # -------- Carambola ------- #  
+    if state['collectStar'] == True:
+        state['coinCounter'] += range(3, 6)
+        state['collectStar'] = False
 
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 

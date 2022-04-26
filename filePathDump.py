@@ -42,6 +42,7 @@ coins = [
     'assets/coinGrey.png',
     'assets/coinRainbow.png',
     'assets/coinStone.png',
+    'assets/coinRing.png',
     'assets/coinNega.png',
     'assets/coinSepia.png',
     'assets/coinMine.png',
