@@ -11,15 +11,6 @@ playerImgDef = {
     'floor': 'assets/floorOG.png'
 }
 
-#currently selected
-playerImg = {
-    'birb': 'assets/birbGba.png',
-    'pipe': 'assets/pipeGba.png',
-    'coin': 'assets/coinOG.png',
-    'bg': 'assets/bgOG.png',
-    'floor': 'assets/floorOG.png'
-}
-
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def inicialize():
@@ -86,6 +77,22 @@ def printRankings(state, assets, window):
         text_image = assets['fontDef'].render(scores, True, (255, 255, 255))
         window.blit(text_image, (8, 8 + (i + 1) * 30))
         i += 1
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def reset_skins():
+
+    playerImg = playerImg = {
+    'birb': 'assets/birbOG.png',
+    'pipe': 'assets/pipeOG.png',
+    'coin': 'assets/coinOG.png',
+    'bg': 'assets/bgOG.png',
+    'floor': 'assets/floorOG.png'
+    }
+                    
+    updatedJson = json.dumps(playerImg)
+    with open('playerPrefs.json', 'w') as arquivo_json:
+        arquivo_json.write(updatedJson)
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -189,31 +196,33 @@ def current_game_state(state, assets):
 
                     # Bird
                     if state['currentMenuIndex'] == 1:
-                        imgBirb = pygame.image.load(state['menus']['Birds'][state['currentItem']])
-                        imgBirb = pygame.transform.scale(imgBirb, (34, 24))
-                        assets['birb'] = imgBirb
+                        changedImg = 'birb'
 
                     # Pipes
                     elif state['currentMenuIndex'] == 2:
-                        imgPipe = pygame.image.load(state['menus']['Pipes'][state['currentItem']])
-                        imgPipe = pygame.transform.scale(imgPipe, (64, 600))
-                        pipeTop = pygame.transform.flip(imgPipe, False, True)
-                        assets['pipeLow'] = imgPipe
-                        assets['pipeTop'] = pipeTop
+                        changedImg = 'pipe'
                     
                     # Coins
                     elif state['currentMenuIndex'] == 3:
-                        imgCoin = pygame.image.load(state['menus']['Coins'][state['currentItem']])
-                        imgCoin = pygame.transform.scale(imgCoin, (32, 32))
-                        assets['coin'] = imgCoin
+                        changedImg = 'coin'
 
                     # Bg
                     elif state['currentMenuIndex'] == 4:
-                        assets['background'] = pygame.image.load(state['menus']['Backgrounds'][state['currentItem']])
+                        changedImg = 'bg'
 
                     # Floors
                     elif state['currentMenuIndex'] == 5:
-                        assets['floor'] = pygame.image.load(state['menus']['Floors'][state['currentItem']])
+                        changedImg = 'floor'
+
+                    # ----------------- Updates the json ------------------- #
+
+                    with open('playerPrefs.json', 'r') as arquivo_json:
+                        skinsString = arquivo_json.read()  
+                    playerImg = json.loads(skinsString)
+                    playerImg[changedImg] = state['menus'][state['currentMenu']][state['currentItem']]
+                    updatedJson = json.dumps(playerImg)
+                    with open('playerPrefs.json', 'w') as arquivo_json:
+                        arquivo_json.write(updatedJson)  
 
                 state['currentItem'] = 0
             
@@ -240,13 +249,18 @@ def current_game_state(state, assets):
         if event.type == pygame.KEYUP:
             state['pressedKey'] = False
 
+    # ----------------- Other menus ------------------- #
+
     if state['currentMenu'] == 'Reset Skins':
-        assets = loads_images(playerImgDef)
+        reset_skins()
         state['currentMenu'] = 'Main menu'
         state['currentMenuIndex'] = 0
+        state['inMainMenu'] = True
 
     if state['currentMenuIndex'] == 8:
         return False
+    
+    # ------------------------------------ #
 
     return True
 
@@ -293,10 +307,20 @@ def render_to_screen(state, assets, window):
 
 def main_menu(window):
 
-    state = inicialize()
+    with open('playerPrefs.json', 'r') as arquivo_json:
+        skinsString = arquivo_json.read()  
+    playerImg = json.loads(skinsString)
     assets = loads_images(playerImg)
 
+    state = inicialize()
+
     while current_game_state(state, assets):
+
+        with open('playerPrefs.json', 'r') as arquivo_json:
+            skinsString = arquivo_json.read()  
+        playerImg = json.loads(skinsString)
+        assets = loads_images(playerImg)
+
         render_to_screen(state, assets, window)
 
     return assets
@@ -306,5 +330,5 @@ def main_menu(window):
 if __name__ == '__main__':
 
     window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
-    main_menu(window)
+    main_menu(window, playerImgDef)
     pygame.quit()
