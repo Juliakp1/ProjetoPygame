@@ -1,5 +1,5 @@
 import pygame, random, json
-from pingpongBird import ping_pong_birb
+from pingPongBird import ping_pong_birb
 from mainMenu import main_menu
 from classesfruity import *
 

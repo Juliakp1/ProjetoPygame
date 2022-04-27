@@ -165,6 +165,7 @@ def loads_images(playerImg):
 
     # ----------------- Loads Images ------------------- #
 
+    #  Geral  #
     imgBirb = pygame.image.load(playerImg['birb'])
     imgBirb = pygame.transform.scale(imgBirb, (34, 24))
 
@@ -179,6 +180,26 @@ def loads_images(playerImg):
 
     imgFloor = pygame.image.load(playerImg['floor'])
 
+    #  Frutas  #
+    imgCloud = pygame.image.load('assets/fruitCloud.png')
+    imgCloud = pygame.transform.scale(imgCloud, (32, 32))
+
+    imgCoffee = pygame.image.load('assets/fruitCoffee.png')
+    imgCoffee = pygame.transform.scale(imgCoffee, (32, 32))
+
+    imgJaca = pygame.image.load('assets/fruitJaca.png')
+    imgJaca = pygame.transform.scale(imgJaca, (32, 32))
+
+    imgLychee = pygame.image.load('assets/fruitLychee.png')
+    imgLychee = pygame.transform.scale(imgLychee, (32, 32))
+
+    imgStar = pygame.image.load('assets/fruitStar.png')
+    imgStar = pygame.transform.scale(imgStar, (32, 32))
+
+    imgWatermelon = pygame.image.load('assets/fruitWatermelon.png')
+    imgWatermelon = pygame.transform.scale(imgWatermelon, (32, 32))
+
+    #  Fontes  #
     pygame.font.init()
     fontDef = pygame.font.Font('assets/pixelFont.ttf', 30)
     fontDef_big = pygame.font.Font('assets/pixelFont.ttf', 60)
@@ -193,7 +214,13 @@ def loads_images(playerImg):
         'fontDef': fontDef,
         'fontDef_big' : fontDef_big,
         'coin': imgCoin,
-        'floor': imgFloor
+        'floor': imgFloor,
+        'cloud': imgCloud,
+        'coffee': imgCoffee,
+        'jaca' : imgJaca,
+        'lychee': imgLychee,
+        'star': imgStar,
+        'waterm': imgWatermelon
     }
 
     return assets

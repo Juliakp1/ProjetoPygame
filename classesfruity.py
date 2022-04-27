@@ -94,4 +94,7 @@ class coin:
         if pygame.Rect.colliderect(bird, coin):
             return True
 
-
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+class Collectables:
+    def __init__(self):
+        
