@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, json
 from pingpongBird import ping_pong_birb
 from mainMenu import main_menu
 from classesfruity import *
@@ -22,6 +22,7 @@ def inicialize():
     # ----------------- States ------------------- #
 
     state = {
+
         'birb' : birb(200, 300, 34, 24, -100),
         'hitPipe': False,
 
@@ -29,6 +30,7 @@ def inicialize():
         'floorHeight': 520,
         'lastUpdated': 0,
         'lastRestart': 0,
+        'nameChosen': 'asd',
 
         'coinCounter': 0,
         'coins': [],
@@ -58,7 +60,7 @@ def inicialize():
 
 def resets(state):
 
-    assets = main_menu(window)
+    assets, nameChosen = main_menu(window)
 
     state['hitPipe'] = False
     state['lastRestart'] = pygame.time.get_ticks()
@@ -69,8 +71,41 @@ def resets(state):
     state['birb'].vel = 100
     state['pipes'] = []
     state['coins'] = []
+    state['nameChosen'] = nameChosen
 
     return assets
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def updates_ranking(nameChosen, coinCounter):
+
+    with open('ranking.json', 'r') as arquivo_json:
+        rankString = arquivo_json.read()  
+    ranks= json.loads(rankString)
+
+    # ----------------- Adds new score ------------------- # 
+
+    if nameChosen not in ranks:
+        ranks[nameChosen] = coinCounter
+    else:
+        if ranks[nameChosen] < coinCounter:
+            ranks[nameChosen] = coinCounter
+
+    # ----------------- Checks top 15 ------------------- #
+
+    if len(ranks) > 15:
+        lowestScore = 0
+        for names in ranks:
+            if ranks[names] < lowestScore:
+                lowestScore = lowestScore
+                lowestName = names
+        del ranks[lowestName]
+
+    ranks = {k: v for k, v in sorted(ranks.items(), key=lambda item: item[1], reverse=True)}
+
+    updatedJson = json.dumps(ranks)
+    with open('ranking.json', 'w') as arquivo_json:
+        arquivo_json.write(updatedJson)  
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -271,6 +306,9 @@ if __name__ == '__main__':
                 i.vel = 0
 
             for ev in pygame.event.get():
+
+                updates_ranking(state['nameChosen'], state['coinCounter'])
+
                 if ev.type == pygame.QUIT:
                     clickedX = True
                     state['hitPipe'] = False

@@ -47,16 +47,18 @@ def inicialize():
     state = {
 
         'menus': {
-            'Main menu': ['Start Game !', 'Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors', 'Reset Skins', 'Rankings', 'Exit'],
+            'Main menu': ['Start Game !', 'Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors', 'Name', 'Reset Skins', 'Rankings', 'Exit'],
             'Birds': birds,
             'Pipes': pipes,
             'Coins': coins,
             'Backgrounds': backgrounds,
             'Floors': floors,
+            'Name': ['aaa'],
             'Rankings': ranking,
             'Reset Skins': ['assets/aaaaaFail.png'],
             'Exit': ['assets/aaaFail.png']
         },
+
         'currentMenu': 'Main menu',
         'currentItem': 0,
         'currentMenuIndex': 0,
@@ -66,7 +68,10 @@ def inicialize():
         'lastUpdated': tiks,
         'birbPos': [500, 300],
         'birbVel': -100,
-        'birbFloor': 380
+        'birbFloor': 380,
+
+        'nameChosen': 'aaa',
+        'currentLetter': 0
     
     }
 
@@ -101,6 +106,58 @@ def reset_skins():
     updatedJson = json.dumps(playerImg)
     with open('playerPrefs.json', 'w') as arquivo_json:
         arquivo_json.write(updatedJson)
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def name_changer(state, assets, window):
+
+    window.blit(assets['background'], [0, 0])
+    currentNameTxt = assets['fontDef'].render('Current Name:', True, (255, 255, 255))
+    window.blit(currentNameTxt, (12, 32))
+    currentNameTxt = assets['fontDef'].render('Current Name:', True, (0, 0, 0))
+    window.blit(currentNameTxt, (10, 30))
+    name = assets['fontDef'].render(state['nameChosen'], True, (255, 255, 255))
+    window.blit(name, (12, 62))
+    name = assets['fontDef'].render(state['nameChosen'], True, (0, 0, 0))
+    window.blit(name, (10, 60))
+
+    for event in pygame.event.get():
+
+        if event.type == pygame.QUIT:
+            return False
+
+        if event.type == pygame.KEYDOWN and state['pressedKey'] == False:
+            
+            if event.key == pygame.K_ESCAPE:
+                state['currentMenu'] = 'Main menu'
+                state['currentMenuIndex'] = 0
+                state['currentItem'] = 0
+                state['inMainMenu'] = True
+                return False
+
+            state['pressedKey'] = True
+            key = event.unicode
+            key = str(key)
+
+            if state['currentLetter'] >= 3:
+                state['currentLetter'] = 0
+                
+            pastName = state['nameChosen']
+            if state['currentLetter'] == 0:
+                newName = key + pastName[1] + pastName[2]
+            elif state['currentLetter'] == 1:
+                newName = pastName[0] + key + pastName[2]
+            elif state['currentLetter'] == 2:
+                newName = pastName[0] + pastName[1] + key
+            state['nameChosen'] = newName
+            state['currentLetter'] += 1
+
+        if event.type == pygame.KEYUP:
+            state['pressedKey'] = False
+
+    pygame.display.update()
+
+    return True
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -177,7 +234,7 @@ def renderBirb(state, assets, window):
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-def current_game_state(state, assets):
+def current_game_state(state, assets, window):
 
     for event in pygame.event.get():
 
@@ -200,8 +257,16 @@ def current_game_state(state, assets):
                         state['currentMenuIndex'] = state['currentItem']
                         state['inMainMenu'] = False
 
+                if state['currentMenu'] == 'Name':
+                    changingName = True
+                    while changingName == True:
+                        changingName = name_changer(state, assets, window)
+                    state['currentMenu'] = 'Main menu'
+                    state['currentMenuIndex'] = 0
+                    state['inMainMenu'] = True
+
                 # ----------------- Loads selected images ------------------- #
-                else:
+                elif state['currentMenuIndex'] in [1, 2, 3, 4, 5]:
 
                     # Bird
                     if state['currentMenuIndex'] == 1:
@@ -228,7 +293,11 @@ def current_game_state(state, assets):
                     with open('playerPrefs.json', 'r') as arquivo_json:
                         skinsString = arquivo_json.read()  
                     playerImg = json.loads(skinsString)
+
+                    
+                    print([state['currentItem']])
                     playerImg[changedImg] = state['menus'][state['currentMenu']][state['currentItem']]
+
                     updatedJson = json.dumps(playerImg)
                     with open('playerPrefs.json', 'w') as arquivo_json:
                         arquivo_json.write(updatedJson)  
@@ -266,7 +335,7 @@ def current_game_state(state, assets):
         state['currentMenuIndex'] = 0
         state['inMainMenu'] = True
 
-    if state['currentMenuIndex'] == 8:
+    if state['currentMenuIndex'] == 9:
         return False
     
     # ------------------------------------ #
@@ -323,7 +392,7 @@ def main_menu(window):
 
     state = inicialize()
 
-    while current_game_state(state, assets):
+    while current_game_state(state, assets, window):
 
         with open('playerPrefs.json', 'r') as arquivo_json:
             skinsString = arquivo_json.read()  
@@ -332,7 +401,7 @@ def main_menu(window):
 
         render_to_screen(state, assets, window)
 
-    return assets
+    return assets, state['nameChosen']
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
