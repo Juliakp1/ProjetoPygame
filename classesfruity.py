@@ -1,4 +1,5 @@
 import pygame
+import random
 
 class birb:
     def __init__(self, coord_x, coord_y, size_x, size_y, v):
@@ -95,6 +96,40 @@ class coin:
             return True
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
-class Collectables:
-    def __init__(self):
-        
+class collectables:
+
+    def __init__(self, coord_y):
+        self.x = 1200
+        self.y = coord_y
+        self.w = 32
+        self.h = 32
+        self.vel = 100
+        # self.possibilidades = ['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm']
+        self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
+        self.collected = False
+    
+    # ------ atualiza posição horizontal das moedas ------- #
+
+    def atualiza_status(self, deltaT):
+        self.x -= self.vel * deltaT
+    
+    # ------------- desenha o coletável da vez na tela -------------- # 
+    
+    def desenha(self, window, assets):
+        window.blit(assets[self.selected], [ self.x, self.y ])
+    
+    # ----------------- verifica colisão entre moedas e passaro ------------------ #
+    def verifica_colisao(self,birb):
+        bird = pygame.Rect(birb.x, birb.y, birb.size[0], birb.size[1])
+        collectable = pygame.Rect(self.x, self.y, self.w, self.h)
+        if pygame.Rect.colliderect(bird, collectable):
+            self.collected = True
+            return True
+
+    
+    def atualiza_efeitos(self,birb):
+        if self.selected == 'lychee':
+            birb.size = [17, 12]
+
+class lychee(collectables):
+    def __init__(self)

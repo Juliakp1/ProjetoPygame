@@ -35,24 +35,28 @@ def inicialize():
 
         'coinCounter': 0,
         'coins': [],
-        'lastCoin' : True,
+        'newCoin' : True,
 
         'lastPipe': 0,
         'pipeTimer': 5000,
         'pipes': [],
+        
+        
+        # 'powerupTime': 10000,
+        # 'collectCloud': True,
+        # 'collectLychee': False,
+        # 'lastLychee': 0,
+        # 'collectWatermelon': False,
+        # 'lastWatermelon': 0,
+        # 'collectCoffee': False,
+        # 'lastCoffee': 0,
+        # 'collectJaca': False,
+        # 'lastJaca': 0,
+        # 'collectStar': False,
+        'lastCollectable': 0,
+        'newCollectable': True,
 
-        'powerupTime': 10000,
-        'collectCloud': True,
-        'collectLychee': False,
-        'lastLychee': 0,
-        'collectWatermelon': False,
-        'lastWatermelon': 0,
-        'collectCoffee': False,
-        'lastCoffee': 0,
-        'collectJaca': False,
-        'lastJaca': 0,
-        'collectStar': False,
-
+    
     }
 
     return state
@@ -67,7 +71,7 @@ def resets(state):
     state['lastRestart'] = pygame.time.get_ticks()
     state['lastPipe'] = pygame.time.get_ticks()
     state['coinCounter'] = 0
-    state['lastCoin'] = True
+    state['newCoin'] = True
     state['birb'].x , state['birb'].y = 200, 300
     state['birb'].vel = 100
     state['pipes'] = []
@@ -180,18 +184,24 @@ def current_game_state(state, assets):
 
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-    # --------------------------- Pipe spawing ------------------------------- #
+    # --------------------------- Pipe and Coin spawing ------------------------------- #
 
     if tiks - state['lastPipe'] > state['pipeTimer']:
         state['lastPipe'] = tiks
         state['pipes'].append(pipe(random.randint(50,370)))
         state['pipeTimer'] = random.choice(range(3000, 5000, 500))
-        state['lastCoin'] = True
+        state['newCoin'] = True
+        state['newCollectable'] = True
 
     
-    if tiks - (state['lastPipe']) > state['pipeTimer']/2 and state['lastCoin']:
+    if tiks - (state['lastPipe']) > state['pipeTimer']/2 and state['newCoin']:
         state['coins'].append(coin(1200, random.randint(32, 480)))
-        state['lastCoin'] = False
+        state['newCoin'] = False 
+    
+    if tiks - state['lastCollectable'] > state['pipeTimer'] + 8000 and state['newCollectable']:
+        state['collectable'] = collectables(random.randint(32,480))
+        state['newCollectable'] = False
+
     
     # ----------------- Pipe, Coin, Floor and ceiling detection ------------------- #
 
@@ -213,6 +223,10 @@ def current_game_state(state, assets):
             state['coins'].remove(c)
             state['coinCounter'] +=1
             pygame.mixer.Sound.play(coinNoise)
+    
+    state['collectable'].atualiza_status(deltaT)
+    if state['collectable'].verifica_colisao(state['birb']):
+        
 
     # --------------------------------------------------- #
     
