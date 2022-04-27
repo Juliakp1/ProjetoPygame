@@ -8,6 +8,7 @@ h2, button { font-family: "Copperplate", fantasy;
 h3 { font-family: "Monaco", monospace;
         font-weight: 900;
 
+
 }
 
 p, div { font-family: "Monaco", monospace;
@@ -34,7 +35,7 @@ body {background-color: bisque;}
 .cabeçalho {
     display: flex;
     flex-direction: row;
-    justify-content:flex-start ;
+    justify-content: center;
     align-items: center;
     padding: 2rem;
     gap : 15px
@@ -54,17 +55,18 @@ body {background-color: bisque;}
 }
 
 
-.bloco1 button { border-width: 1px;
+.bloco1 button { 
+    border-width: 1px;
     margin: 2rem;
     padding: 2rem;
 
-    background-image: url('exemplo.jpg');
+    background-image: url('noGameOver.png');
     color: #fafafa;
     font-size: xx-large;
                 
 }
 .bloco1 button:hover {
-    background-image: url('../assets/birbOG.png')
+    background-image: url('gameOver.png')
 
 }
 
@@ -94,15 +96,55 @@ body {background-color: bisque;}
 
 .telas {
     display: flex;
-    flex-direction: row;
+    flex-flow: row wrap;
     justify-content: space-around;
 }
 
 .caixa img{
-    width: 15rem;
-    height: 25rem;
+    width: 28rem;
+    height: 15rem;
 }
 .caixa h2 {
     text-align: center;
     font-size: x-large;
+    margin: 0.5rem;
 }
+
+/* bastidores do jogo */
+.bastidores h2{
+    padding: 2rem;
+}
+.bastidores p{ text-indent: 2rem;
+    padding: 0.35rem;
+ 
+}
+ 
+.datas em {
+    background-color: #76c372;
+    color: rgb(83, 80, 80)
+}
+
+.jogo {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+}
+
+.jogo ol {
+    padding-left: 5rem;
+    list-style-type: decimal;
+    
+}
+
+.jogo ul {
+    list-style-type: square;
+    padding-left: 5rem;
+    
+}
+
+.jogo h3, p, iframe{
+    text-indent: 2rem;
+    padding: 1rem;
+}
+

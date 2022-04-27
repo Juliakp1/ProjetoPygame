@@ -112,13 +112,13 @@ def reset_skins():
 def name_changer(state, assets, window):
 
     window.blit(assets['background'], [0, 0])
-    currentNameTxt = assets['fontDef'].render('Current Name:', True, (255, 255, 255))
-    window.blit(currentNameTxt, (12, 32))
     currentNameTxt = assets['fontDef'].render('Current Name:', True, (0, 0, 0))
+    window.blit(currentNameTxt, (12, 32))
+    currentNameTxt = assets['fontDef'].render('Current Name:', True, (255, 255, 255))
     window.blit(currentNameTxt, (10, 30))
-    name = assets['fontDef'].render(state['nameChosen'], True, (255, 255, 255))
-    window.blit(name, (12, 62))
     name = assets['fontDef'].render(state['nameChosen'], True, (0, 0, 0))
+    window.blit(name, (12, 62))
+    name = assets['fontDef'].render(state['nameChosen'], True, (255, 255, 255))
     window.blit(name, (10, 60))
 
     for event in pygame.event.get():
@@ -128,7 +128,7 @@ def name_changer(state, assets, window):
 
         if event.type == pygame.KEYDOWN and state['pressedKey'] == False:
             
-            if event.key == pygame.K_ESCAPE:
+            if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
                 state['currentMenu'] = 'Main menu'
                 state['currentMenuIndex'] = 0
                 state['currentItem'] = 0
@@ -294,8 +294,6 @@ def current_game_state(state, assets, window):
                         skinsString = arquivo_json.read()  
                     playerImg = json.loads(skinsString)
 
-                    
-                    print([state['currentItem']])
                     playerImg[changedImg] = state['menus'][state['currentMenu']][state['currentItem']]
 
                     updatedJson = json.dumps(playerImg)

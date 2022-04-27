@@ -30,6 +30,7 @@ def inicialize():
         'floorHeight': 520,
         'lastUpdated': 0,
         'lastRestart': 0,
+        'timeElapsed': 0,
         'nameChosen': 'asd',
 
         'coinCounter': 0,
@@ -124,6 +125,8 @@ def current_game_state(state, assets):
     tiks = pygame.time.get_ticks()
     deltaT = (tiks - state['lastUpdated']) / 1000
     state['lastUpdated'] = tiks
+
+    state['timeElapsed'] = (tiks - state['lastRestart']) / 1000
 
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Collectables -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -234,12 +237,14 @@ def current_game_state(state, assets):
             if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w) and state['birb'].jumped == False:
                 state['birb'].vel = -200
                 state['birb'].jumped = True
+            
+            if ev.key == pygame.K_ESCAPE:
+                state['hitPipe'] = True
         
         if ev.type == pygame.KEYUP:
             if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w):
                 state['birb'].jumped = False
                 pygame.mixer.Sound.play(flap)
-
 
     return True
 
@@ -259,8 +264,14 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
 
     # Coin counter
     coins = str(state['coinCounter'])
-    window.blit(assets['fontDef_big'].render(coins, True, (0, 0, 0)), (20, 15))
-    window.blit(assets['fontDef_big'].render(coins, True, (255, 255, 255)), (18, 13))
+    window.blit(assets['fontDef_big'].render(coins, True, (0, 0, 0)), (20, 65))
+    window.blit(assets['fontDef_big'].render(coins, True, (255, 255, 255)), (18, 63))
+
+    # Timer
+    numb = state['timeElapsed']
+    time = str.format(f'{numb:.2f}')
+    window.blit(assets['fontDef_big'].render(time, True, (0, 0, 0)), (20, 15))
+    window.blit(assets['fontDef_big'].render(time, True, (255, 255, 255)), (18, 13))
 
     # Floor
     window.blit(assets['floor'], [0, 520])
@@ -314,8 +325,9 @@ if __name__ == '__main__':
                     state['hitPipe'] = False
                     break
                 if ev.type == pygame.KEYDOWN: 
-                    if ev.key == pygame.K_r:
+                    if ev.key == pygame.K_r or ev.key == pygame.K_ESCAPE:
                         assets = resets(state)
+                        custom_window(assets)
         # ------------------------------------------------ #
 
         if clickedX == True: 
