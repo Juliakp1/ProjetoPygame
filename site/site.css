@@ -1,0 +1,108 @@
+h1 {font-family: "Copperplate", fantasy;
+font-size: xx-large;
+}
+h2, button { font-family: "Copperplate", fantasy;
+    font-size: large;
+
+}
+h3 { font-family: "Monaco", monospace;
+        font-weight: 900;
+
+}
+
+p, div { font-family: "Monaco", monospace;
+    
+}
+
+em {
+    font-weight: 900;
+}
+b {
+    font-style: italic;
+}
+
+body {background-color: bisque;}
+.pagina {
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+    
+}
+
+/* título do jogo e a logo */
+
+.cabeçalho {
+    display: flex;
+    flex-direction: row;
+    justify-content:flex-start ;
+    align-items: center;
+    padding: 2rem;
+    gap : 15px
+
+}
+
+.logo {
+    width: 4rem;
+}
+
+/* descrição do jogo */
+.bloco1 {
+    display: flex;
+    padding : 2rem;
+    flex-direction: row;
+    justify-content: flex-end;  
+}
+
+
+.bloco1 button { border-width: 1px;
+    margin: 2rem;
+    padding: 2rem;
+
+    background-image: url('exemplo.jpg');
+    color: #fafafa;
+    font-size: xx-large;
+                
+}
+.bloco1 button:hover {
+    background-image: url('../assets/birbOG.png')
+
+}
+
+.bloco1 p {
+    border: 1px solid black;
+    padding: 1rem;
+    justify-content: center;
+    text-align: justify;
+    margin: auto;
+    text-indent: 2rem;
+}
+/*
+.bloco11 {
+    display: flex;
+    border-width: 100px;
+    border-color: black;
+    background-color: aqua;
+    padding: 2rem;
+    justify-content: center;
+
+}
+.bloco12 { 
+    background-color: blueviolet;
+    padding: 2rem
+}
+*/
+
+.telas {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.caixa img{
+    width: 15rem;
+    height: 25rem;
+}
+.caixa h2 {
+    text-align: center;
+    font-size: x-large;
+}
