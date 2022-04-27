@@ -22,6 +22,7 @@ def inicialize(assets):
 
     flipBirb = pygame.transform.flip(assets['birb'], True, False)
     assets['flipBirb'] = flipBirb
+    assets['dreamscape'] = pygame.image.load('assets/dreamscape.png')
 
     # ----------------- Game States ------------------- #
 
@@ -86,13 +87,12 @@ def rendering_to_screen(window: pygame.Surface, assets, statePing):
         window.blit(assets['coin'], statePing['coin_pong'].pos)
     
     coins = str(statePing['coin_pong'].counter)
-    window.blit(assets['fontDef'].render(coins, True, (0, 0, 0)), (20, 15))
-    window.blit(assets['fontDef'].render(coins, True, (255, 255, 255)), (18, 13))
+    window.blit(assets['fontDef_big'].render(coins, True, (0, 0, 0)), (20, 15))
+    window.blit(assets['fontDef_big'].render(coins, True, (255, 255, 255)), (18, 13))
 
     # ----------------- Renders birb ------------------- #
 
     if statePing['fading'] == False:    
-        
         statePing['birb_pong'].rendering_to_screen(window, assets)
 
     # ----------------- Renders Game Over ------------------- #
@@ -100,6 +100,8 @@ def rendering_to_screen(window: pygame.Surface, assets, statePing):
     if statePing['hitPipe'] == True:
         window.blit(assets['fontDef'].render('Game Over', True, (0, 0, 0)), (165, 170))
         window.blit(assets['fontDef'].render('Game Over', True, (255, 255, 255)), (163, 168)) 
+
+    window.blit(assets['dreamscape'], [0, 0])
 
     pygame.display.update()
 
