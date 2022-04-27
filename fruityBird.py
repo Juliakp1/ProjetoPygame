@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, json
 from pingpongBird import ping_pong_birb
 from mainMenu import main_menu
 from classesfruity import *
@@ -22,6 +22,7 @@ def inicialize():
     # ----------------- States ------------------- #
 
     state = {
+
         'birb' : birb(200, 300, 34, 24, -100),
         'hitPipe': False,
 
@@ -29,6 +30,7 @@ def inicialize():
         'floorHeight': 520,
         'lastUpdated': 0,
         'lastRestart': 0,
+        'nameChosen': 'asd',
 
         'coinCounter': 0,
         'coins': [],
@@ -42,10 +44,13 @@ def inicialize():
         'collectCloud': False,
         'collectLychee': False,
         'lastLychee': 0,
+        'collectWatermelon': False,
+        'lastWatermelon': 0,
         'collectCoffee': False,
         'lastCoffee': 0,
-        'collectWatermelon': False,
-        'lastWatermelon': 0
+        'collectJaca': False,
+        'lastJaca': 0,
+        'collectStar': False,
 
     }
 
@@ -54,13 +59,53 @@ def inicialize():
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def resets(state):
+
+    assets, nameChosen = main_menu(window)
+
     state['hitPipe'] = False
     state['lastRestart'] = pygame.time.get_ticks()
+    state['lastPipe'] = pygame.time.get_ticks()
     state['coinCounter'] = 0
+    state['lastCoin'] = True
     state['birb'].x , state['birb'].y = 200, 300
     state['birb'].vel = 100
     state['pipes'] = []
     state['coins'] = []
+    state['nameChosen'] = nameChosen
+
+    return assets
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+def updates_ranking(nameChosen, coinCounter):
+
+    with open('ranking.json', 'r') as arquivo_json:
+        rankString = arquivo_json.read()  
+    ranks= json.loads(rankString)
+
+    # ----------------- Adds new score ------------------- # 
+
+    if nameChosen not in ranks:
+        ranks[nameChosen] = coinCounter
+    else:
+        if ranks[nameChosen] < coinCounter:
+            ranks[nameChosen] = coinCounter
+
+    # ----------------- Checks top 15 ------------------- #
+
+    if len(ranks) > 15:
+        lowestScore = 0
+        for names in ranks:
+            if ranks[names] < lowestScore:
+                lowestScore = lowestScore
+                lowestName = names
+        del ranks[lowestName]
+
+    ranks = {k: v for k, v in sorted(ranks.items(), key=lambda item: item[1], reverse=True)}
+
+    updatedJson = json.dumps(ranks)
+    with open('ranking.json', 'w') as arquivo_json:
+        arquivo_json.write(updatedJson)  
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -109,11 +154,36 @@ def current_game_state(state, assets):
     
     # -------- Coffee ------- #  
     if state['collectCoffee'] == True:
-        state['pipeSpeed'] = 3
+        for i in state['pipes']:
+            i.vel *= 2
+        for i in state['coins']:
+            i.vel *= 2
         state['lastCoffee'] = tiks
         state['collectCoffee'] = False
-    if tiks - state['lastWatermelon'] > state['powerupTime'] and tiks - state['lastWatermelon'] < state['powerupTime'] + 200:
-        state['pipeSpeed'] = 1
+    if tiks - state['lastCoffee'] > state['powerupTime'] and tiks - state['lastCoffee'] < state['powerupTime'] + 200:
+        for i in state['pipes']:
+            i.vel /= 2
+        for i in state['coins']:
+            i.vel /= 2
+
+    # -------- Jaca ------- #  
+    if state['collectJaca'] == True:
+        for i in state['pipes']:
+            i.vel /= 2
+        for i in state['coins']:
+            i.vel /= 2
+        state['lastJaca'] = tiks
+        state['collectJaca'] = False
+    if tiks - state['lastJaca'] > state['powerupTime'] and tiks - state['lastJaca'] < state['powerupTime'] + 200:
+        for i in state['pipes']:
+            i.vel *= 2
+        for i in state['coins']:
+            i.vel *= 2
+
+    # -------- Carambola ------- #  
+    if state['collectStar'] == True:
+        state['coinCounter'] += range(3, 6)
+        state['collectStar'] = False
 
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -124,6 +194,7 @@ def current_game_state(state, assets):
         state['pipes'].append(pipe(random.randint(50,370)))
         state['pipeTimer'] = random.choice(range(3000, 5000, 500))
         state['lastCoin'] = True
+
     
     if tiks - (state['lastPipe']) > state['pipeTimer']/2 and state['lastCoin']:
         state['coins'].append(coin(1200, random.randint(32, 480)))
@@ -188,14 +259,18 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
 
     # Coin counter
     coins = str(state['coinCounter'])
-    window.blit(assets['fontDef'].render(coins, True, (0, 0, 0)), (20, 15))
-    window.blit(assets['fontDef'].render(coins, True, (255, 255, 255)), (18, 13))
+    window.blit(assets['fontDef_big'].render(coins, True, (0, 0, 0)), (20, 15))
+    window.blit(assets['fontDef_big'].render(coins, True, (255, 255, 255)), (18, 13))
 
     # Floor
     window.blit(assets['floor'], [0, 520])
 
     # Bird
     state['birb'].desenha(assets, window)
+
+    if state['hitPipe'] == True:
+        window.blit(assets['fontDef_big'].render('Game Over', True, (0, 0, 0)), (165, 170))
+        window.blit(assets['fontDef_big'].render('Game Over', True, (255, 255, 255)), (163, 168))
 
     pygame.display.update()
 
@@ -207,9 +282,8 @@ if __name__ == '__main__':
     clickedX = False
 
     # ----------------- Main menu and characters ------------------- #
-    assets = main_menu(window)
-    
     state = inicialize()
+    assets = resets(state)
     custom_window(assets)
 
     rendering_to_screen(window, assets, state)
@@ -225,8 +299,6 @@ if __name__ == '__main__':
             state['lastUpdated'] = tiks
             state['birb'].atualiza_status(deltaT, state['floorHeight'], state['gravity'])
             rendering_to_screen(window, assets, state)
-            window.blit(assets['fontDef'].render('Game Over', True, (0, 0, 0)), (165, 170))
-            window.blit(assets['fontDef'].render('Game Over', True, (255, 255, 255)), (163, 168)) 
 
             for i in state['pipes']:
                 i.vel = 0
@@ -234,13 +306,16 @@ if __name__ == '__main__':
                 i.vel = 0
 
             for ev in pygame.event.get():
+
+                updates_ranking(state['nameChosen'], state['coinCounter'])
+
                 if ev.type == pygame.QUIT:
                     clickedX = True
                     state['hitPipe'] = False
                     break
                 if ev.type == pygame.KEYDOWN: 
                     if ev.key == pygame.K_r:
-                        resets(state)
+                        assets = resets(state)
         # ------------------------------------------------ #
 
         if clickedX == True: 
