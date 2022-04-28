@@ -1,6 +1,6 @@
 # ProjetoPygame
 
-Jogo similar ao flappy bird, com power-ups e 
+Jogo similar ao flappy bird, com power-ups, customização e um modo de jogo secreto
 
 Mecânicas:
 
