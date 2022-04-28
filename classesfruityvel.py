@@ -104,17 +104,15 @@ class collectables:
         self.y = coord_y
         self.w = 32
         self.h = 32
-        self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
-
+        #self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
+        self.selected = 'cloud'
         self.collected = False
     
-    # ------ atualiza posição horizontal das moedas ------- #
+    # ------ atualiza posição horizontal dos coletáveis ------- #
 
     def atualiza_status(self, deltaT, vel):
         self.x -= vel * deltaT
         
-        
-    
     # ------------- desenha o coletável da vez na tela -------------- # 
     
     def desenha(self, window, assets):
@@ -129,7 +127,7 @@ class collectables:
             self.collected = True
             return True
 
-    
+    # ------ atualiza os efeitos de acordo com o coletável ------- #
     def atualiza_efeitos(self, assets, state, window, tiks):
         
         # -------- Lychee ------- #
@@ -159,15 +157,17 @@ class collectables:
         
         # -------- Coffee ------- #
         elif self.selected == 'coffee':
-            state['pipeTimer'] = 1500
-            state['vel'] *= 2
+            state['pipeTimer'] = 2500
+            if state['vel'] == state['vel_padrao']:
+                state['vel'] *= 1.5
         
         # -------- Jaca ------- #  
         elif self.selected == 'jaca':
             state['pipeTimer'] = 5000
-            state['vel'] /= 2
+            if state['vel'] == state['vel_padrao']:
+                state['vel'] *= 0.5
 
-
+    # ------------ Volta as condições normais do jogo -------------- #
     def volta_normal(self, assets, state):
         state['birb'].size = [34,24]
         assets['birb'] = pygame.transform.scale(assets['birb'], (34,24))
@@ -176,5 +176,4 @@ class collectables:
             i.h = 32
         assets['coin'] = pygame.transform.scale(assets['coin'], (32,32))
         state['pipeTimer'] = random.choice(range(3000, 5000, 500))
-        state['vel'] = 100
-
+        state['vel'] = state['vel_padrao']

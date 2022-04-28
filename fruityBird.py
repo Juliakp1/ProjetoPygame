@@ -98,12 +98,13 @@ def updates_ranking(nameChosen, coinCounter):
     # ----------------- Checks top 15 ------------------- #
 
     if len(ranks) > 15:
-        lowestScore = 0
+        lowestScore = -1
         for names in ranks:
             if ranks[names] < lowestScore:
-                lowestScore = lowestScore
+                lowestScore = ranks[names]
                 lowestName = names
-        del ranks[lowestName]
+        if lowestScore != -1:
+            del ranks[lowestName]
 
     ranks = {k: v for k, v in sorted(ranks.items(), key=lambda item: item[1], reverse=True)}
 

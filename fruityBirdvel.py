@@ -22,35 +22,39 @@ def inicialize():
     # ----------------- States ------------------- #
 
     state = {
-
+        # birb
         'birb' : birb(200, 300, 34, 24, -100),
-        'hitPipe': False,
-
         'gravity': 500,
+
+        # pipe 
+        'hitPipe': False,
+        'lastPipe': 0,
+        'pipeTimer': 5000,
+        'pipes': [],
+
+        # floor 
         'floorHeight': 520,
-        'floorPos':{0: [0, 520], 1:[1200,520]},
+        'floorPos':{0: [0, 520], 1:[600,520], 2:[1200,520]},
 
-        'lastUpdated': 0,
-        'lastRestart': 0,
-        'timeElapsed': 0,
-        'nameChosen': 'asd',
-
+        # coins
         'coinCounter': 0,
         'coins': [],
         'newCoin' : True,
 
-        'lastPipe': 0,
-        'pipeTimer': 5000,
-        'pipes': [],
-        
-
+        # collectables
         'newCollectable': True,
         'collectable': 'none',
         'contador': 5,
         'timeC': 0,
-        'vel': 100
+        
+        # geral 
+        'lastUpdated': 0,
+        'lastRestart': 0,
+        'timeElapsed': 0,
+        'nameChosen': 'asd',
+        'vel': 100,
+        'vel_padrao': 100,
 
-    
     }
 
     return state
@@ -78,6 +82,7 @@ def resets(state):
     state['contador'] = 5
     state['timeC'] = pygame.time.get_ticks()
     state['vel'] = 100
+    state['vel_padrao'] = 100
     state['muda_vel'] = True
 
     return assets
@@ -101,12 +106,13 @@ def updates_ranking(nameChosen, coinCounter):
     # ----------------- Checks top 15 ------------------- #
 
     if len(ranks) > 15:
-        lowestScore = 0
+        lowestScore = -1
         for names in ranks:
             if ranks[names] < lowestScore:
-                lowestScore = lowestScore
+                lowestScore = ranks[names]
                 lowestName = names
-        del ranks[lowestName]
+        if lowestScore > -1:
+            del ranks[lowestName]
 
     ranks = {k: v for k, v in sorted(ranks.items(), key=lambda item: item[1], reverse=True)}
 
@@ -134,12 +140,10 @@ def current_game_state(state, assets):
 
     state['timeElapsed'] = (tiks - state['lastRestart']) / 1000
 
-    
 
-    
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-    # --------------------------- Pipe and Coin spawing ------------------------------- #
+    # --------------------------- Pipe, Coin and Collectable spawing ------------------------------- #
 
     if tiks - state['lastPipe'] > state['pipeTimer']:
         state['lastPipe'] = tiks
@@ -153,7 +157,7 @@ def current_game_state(state, assets):
         state['coins'].append(coin(1200, random.randint(32, 480)))
         state['newCoin'] = False 
     
-    if state['contador'] >6 and tiks - state['lastPipe'] > 1500 and state['newCollectable']:
+    if state['contador'] > 6 and tiks - state['lastPipe'] > 1500 and state['newCollectable']:
         state['collectable'] = collectables(random.randint(32,480))
         state['newCollectable'] = False
         state['contador'] = 0
@@ -180,17 +184,15 @@ def current_game_state(state, assets):
             state['coinCounter'] +=1
             pygame.mixer.Sound.play(coinNoise)
     
-
-    
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Collectables -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
     if state['collectable'] != 'none':
         state['collectable'].atualiza_status(deltaT, state['vel'])
         
         if state['collectable'].verifica_colisao(state['birb']):
-            state['collectable'].atualiza_efeitos(assets, state,window, tiks)
             state['timeC'] = tiks
-        
+            state['collectable'].atualiza_efeitos(assets, state, window, tiks)
+            
         if state['collectable'].collected == True:
             if tiks - state['timeC'] > 15000:
                 state['collectable'].volta_normal( assets, state)
@@ -202,15 +204,18 @@ def current_game_state(state, assets):
         elif state['collectable'].x < 0:
             state['newCollectable'] = True
 
+    # ---------- Movimentação do chão ----------- #
     for f in state['floorPos'].values():
         f[0] -= state['vel'] * deltaT
-        if f[0] <= - 1199:
-            f[0] = 1200
+        if f[0] <= - 1200:
+            f[0] = 600
     
-    if state['coinCounter'] != 0 and state['coinCounter'] % 25 == 0 and state['muda_vel']:
-        state['vel'] += 50
+    # --------------------- Mudança da velocidade geral -----------------------------#
+    if (state['coinCounter'] != 0 and state['coinCounter'] % 20 == 0 )and state['muda_vel'] and state['vel_padrao'] < 180:
+        state['vel_padrao'] += 10
+        state['vel'] = state['vel_padrao']
         state['muda_vel'] = False
-    else:
+    elif state['coinCounter']//20 > 0:
         state['muda_vel'] = True  
 
     # --------------------------------------------------- #
@@ -244,18 +249,17 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
     # Bg
     window.blit(assets['background'], [0, 0])
 
-    # pipe
+    # Pipe
     for i in state['pipes']:
         i.desenha(window, assets)
     
     for c in state['coins']:
         c.desenha(window, assets)
 
-    # fruta
+    # Collectable
     if state['collectable'] != 'none':
         if state['collectable'].collected == False:
             state['collectable'].desenha(window, assets)
-
 
     # Coin counter
     coins = str(state['coinCounter'])
@@ -271,8 +275,7 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
     # Floor
     for f in state['floorPos'].values():
         window.blit(assets['floor'], f)
-
-
+ 
     # Bird
     state['birb'].desenha(assets, window)
 
