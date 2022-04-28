@@ -1,5 +1,6 @@
 import pygame
 import random
+import json
 from pingPongBird import ping_pong_birb
 from fruityBirdvel import custom_window
 
@@ -105,7 +106,7 @@ class collectables:
         self.w = 32
         self.h = 32
         #self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
-        self.selected = 'cloud'
+        self.selected = 'lychee'
         self.collected = False
     
     # ------ atualiza posição horizontal dos coletáveis ------- #
@@ -170,7 +171,13 @@ class collectables:
     # ------------ Volta as condições normais do jogo -------------- #
     def volta_normal(self, assets, state):
         state['birb'].size = [34,24]
-        assets['birb'] = pygame.transform.scale(assets['birb'], (34,24))
+
+        with open('playerPrefs.json', 'r') as arquivo_json:
+            skinsString = arquivo_json.read()  
+        playerImg = json.loads(skinsString)
+        imgBirb = pygame.image.load(playerImg['birb'])
+        assets['birb'] = pygame.transform.scale(imgBirb, (34, 24))
+
         for i in state['coins']:
             i.w = 32
             i.h = 32
