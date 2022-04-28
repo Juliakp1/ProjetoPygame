@@ -10,18 +10,15 @@ h3 { font-family: "Monaco", monospace;
 
 
 }
-
 p, div { font-family: "Monaco", monospace;
     
 }
-
 em {
     font-weight: 900;
 }
 b {
     font-style: italic;
 }
-
 body {background-color: bisque;}
 .pagina {
     display: flex;
@@ -30,7 +27,7 @@ body {background-color: bisque;}
     
 }
 
-/* título do jogo e a logo */
+/* título do jogo e a logo ------------------------------------- */
 
 .cabeçalho {
     display: flex;
@@ -44,12 +41,19 @@ body {background-color: bisque;}
 .cabeçalho h1 {
     font-size: 5rem;
 }
+.cabeçalho h1:hover {
+    color: #413e3e;
+}
 
 .logo {
     width: 4rem;
 }
+.logo:hover {
+    width: 4rem;
+    transform: scale(1.05, 1.05);
+}
 
-/* descrição do jogo */
+/* descrição do jogo ------------------------------------- */
 .bloco1 {
     display: flex;
     padding : 2rem;
@@ -62,6 +66,7 @@ body {background-color: bisque;}
     border-width: 1px;
     margin: 2rem;
     padding: 2rem;
+    transform: scale(1.1, 1);
 
     background-image: url('noGameOver.png');
     color: #fafafa;
@@ -69,7 +74,8 @@ body {background-color: bisque;}
                 
 }
 .bloco1 button:hover {
-    background-image: url('gameOver.png')
+    background-image: url('gameOver.png');
+    transform: scale(1.2, 1.1);
 
 }
 
@@ -97,6 +103,7 @@ body {background-color: bisque;}
 }
 */
 
+/* fotos e screenshots ------------------------------------- */
 .telas {
     display: flex;
     flex-flow: row wrap;
@@ -107,13 +114,19 @@ body {background-color: bisque;}
     width: 28rem;
     height: 15rem;
 }
+
+.caixa img:hover{
+    transform: scale(1.05, 1.05);
+}
+
 .caixa h2 {
     text-align: center;
     font-size: x-large;
     margin-bottom: 0.5rem;
 }
 
-/* bastidores do jogo */
+
+/* bastidores do jogo ------------------------------------- */
 .datas {
     padding-bottom: 5rem;
 }
@@ -134,6 +147,7 @@ body {background-color: bisque;}
     color: rgb(83, 80, 80)
 }
 
+/* parte da esquerda do site ------------------------------------- */
 .jogo {
     display: flex;
     flex-direction: column;
@@ -169,14 +183,25 @@ body {background-color: bisque;}
     border-bottom: 0.2rem dotted rgb(83, 80, 80); 
 }
 
+/* divisao do site */
 .siteDivide {
     display: flex;
     flex-direction: row;
+    justify-content: center;
 }
 
+
+/* desinvolvedoras */
 .devs img{
     padding: 1.5rem;
     width: 20rem;
     height: 10rem;
 }
 
+.devs img:hover{
+    transform: scale(1.05, 1.05);
+}
+
+.dias:hover {
+    background-color: #62b6a4;
+}
