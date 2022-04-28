@@ -123,7 +123,7 @@ class pipe_pong:
             elif self.upper_pos[0] >= statePing['windowSize'][0] - 64: 
                 self.direction = -1
             self.upper_pos[0] += self.speed_h * self.direction
-            self.upper_pos[1] += self.speed_h * self.direction
+            self.lower_pos[1] += self.speed_h * self.direction
 
         # atualiza a posição da moeda
         coin_pong.pos[0] = self.upper_pos[0] + 15
