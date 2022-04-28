@@ -1,7 +1,7 @@
 import pygame
 import random
 from pingPongBird import ping_pong_birb
-from fruityBird import custom_window
+from fruityBirdvel import custom_window
 
 class birb:
     def __init__(self, coord_x, coord_y, size_x, size_y, v):
@@ -43,14 +43,13 @@ class pipe:
         self.height = h
         self.upper_pos = [self.horiz, self.height -600]
         self.lower_pos = [self.horiz, self.height +150]
-        self.vel = 100
         self.pont = False
     
     # ------ atualiza posição horizontal dos canos ------- #
 
-    def atualiza_status(self,deltaT):
-        self.upper_pos[0] -= self.vel * deltaT 
-        self.lower_pos[0] -= self.vel * deltaT 
+    def atualiza_status(self,deltaT, vel):
+        self.upper_pos[0] -= vel * deltaT 
+        self.lower_pos[0] -= vel * deltaT 
     
     # ------------- desenha os canos na tela -------------- # 
 
@@ -78,12 +77,12 @@ class coin:
         self.y = coord_y
         self.w = 32
         self.h = 32
-        self.vel = 100
+
         
     # ------ atualiza posição horizontal das moedas ------- #
     
-    def atualiza_status(self, deltaT):
-        self.x -= self.vel * deltaT
+    def atualiza_status(self, deltaT, vel):
+        self.x -= vel * deltaT
     
     # ------------- desenha as moedas na tela -------------- # 
     
@@ -105,19 +104,16 @@ class collectables:
         self.y = coord_y
         self.w = 32
         self.h = 32
-        self.vel = 100
-        # self.possibilidades = ['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm']
         self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
-        # self.selected = random.choice(['lychee', 'waterm', 'star', 'cloud', 'coffee'])
-        # self.selected = 'coffee'
+
         self.collected = False
     
     # ------ atualiza posição horizontal das moedas ------- #
 
-    def atualiza_status(self, deltaT, state):
-        self.x -= self.vel * deltaT
-        #if state['coinCounter'] > 30:
-        #    self.vel 
+    def atualiza_status(self, deltaT, vel):
+        self.x -= vel * deltaT
+        
+        
     
     # ------------- desenha o coletável da vez na tela -------------- # 
     
@@ -163,25 +159,13 @@ class collectables:
         
         # -------- Coffee ------- #
         elif self.selected == 'coffee':
-            for i in state['pipes']:
-                if i.vel == 100:
-                    i.vel *= 2
-            for i in state['coins']:
-                if i.vel == 100:
-                    i.vel *= 2
             state['pipeTimer'] = 1500
-            state['vel'] = 200
+            state['vel'] *= 2
         
         # -------- Jaca ------- #  
         elif self.selected == 'jaca':
-            for i in state['pipes']:
-                if i.vel == 100:
-                    i.vel /= 2
-            for i in state['coins']:
-                if i.vel == 100:
-                    i.vel /= 2
             state['pipeTimer'] = 5000
-            state['vel'] = 50
+            state['vel'] /= 2
 
 
     def volta_normal(self, assets, state):
@@ -192,14 +176,5 @@ class collectables:
             i.h = 32
         assets['coin'] = pygame.transform.scale(assets['coin'], (32,32))
         state['pipeTimer'] = random.choice(range(3000, 5000, 500))
-        for i in state['pipes'] : i.vel = 100
-        for i in state['coins']: i.vel = 100
         state['vel'] = 100
-            
-# class floor:
-#     def __init__(self,coord_x):
-#         self.pos = [coord_x, 520]
 
-# class lychee(collectables):
-#     def efeito():
-#         birb.size = [17,12]

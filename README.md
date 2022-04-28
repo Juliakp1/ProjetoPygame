@@ -1,6 +1,6 @@
 # ProjetoPygame
 
-Jogo similar ao flappy bird, com power-ups e 
+Jogo similar ao flappy bird, com power-ups, customização e um modo de jogo secreto
 
 Mecânicas:
 
@@ -12,4 +12,4 @@ Mecânicas:
 - Lichia (power-ups que te deixam menor)
 - Cafe (power-ups que deixam rapido)
 - Jaca (power-ups que deixam devagar)
-- Carambola (te da 3-5 pontos extra)
+- Carambola (power-ups que aumenta o tamanho das moedas)
