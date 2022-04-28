@@ -1,7 +1,7 @@
 import pygame, random, json
 from pingPongBird import ping_pong_birb
 from mainMenu import main_menu
-from classesfruity import *
+from classesfruityvel import *
 
 # ----------------- Sounds ------------------- #
 
@@ -71,11 +71,14 @@ def resets(state):
     state['pipes'] = []
     state['coins'] = []
     state['nameChosen'] = nameChosen
+    
+    # collectable
     state['newCollectable'] = True
     state['collectable'] = 'none'
     state['contador'] = 5
     state['timeC'] = pygame.time.get_ticks()
     state['vel'] = 100
+    state['muda_vel'] = True
 
     return assets
 
@@ -161,7 +164,7 @@ def current_game_state(state, assets):
     state['birb'].atualiza_status(deltaT, state['floorHeight'], state['gravity'])
     
     for i in state['pipes']:
-        i.atualiza_status(deltaT)
+        i.atualiza_status(deltaT, state['vel'])
         if i.verifica_colisao(state['birb']):
             state['hitPipe'] = True
             pygame.mixer.Sound.play(death)
@@ -171,7 +174,7 @@ def current_game_state(state, assets):
             i.pont = True
     
     for c in state['coins']:
-        c.atualiza_status(deltaT)
+        c.atualiza_status(deltaT, state['vel'])
         if c.verifica_colisao(state['birb']):
             state['coins'].remove(c)
             state['coinCounter'] +=1
@@ -182,7 +185,7 @@ def current_game_state(state, assets):
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Collectables -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
     if state['collectable'] != 'none':
-        state['collectable'].atualiza_status(deltaT, state)
+        state['collectable'].atualiza_status(deltaT, state['vel'])
         
         if state['collectable'].verifica_colisao(state['birb']):
             state['collectable'].atualiza_efeitos(assets, state,window, tiks)
@@ -204,7 +207,11 @@ def current_game_state(state, assets):
         if f[0] <= - 1199:
             f[0] = 1200
     
-        
+    if state['coinCounter'] != 0 and state['coinCounter'] % 25 == 0 and state['muda_vel']:
+        state['vel'] += 50
+        state['muda_vel'] = False
+    else:
+        state['muda_vel'] = True  
 
     # --------------------------------------------------- #
     
@@ -301,10 +308,8 @@ if __name__ == '__main__':
             state['birb'].atualiza_status(deltaT, state['floorHeight'], state['gravity'])
             rendering_to_screen(window, assets, state)
 
-            for i in state['pipes']:
-                i.vel = 0
-            for i in state['coins']:
-                i.vel = 0
+ 
+            state['vel'] = 0
 
             for ev in pygame.event.get():
 
