@@ -1,5 +1,5 @@
 import pygame, random, json
-from pingpongBird import ping_pong_birb
+from pingPongBird import ping_pong_birb
 from mainMenu import main_menu
 from classesfruityvel import *
 
@@ -211,15 +211,15 @@ def current_game_state(state, assets):
     # ---------- Movimentação do chão ----------- #
     for f in state['floorPos'].values():
         f[0] -= state['vel'] * deltaT
-        if f[0] <= - 600:
+        if f[0] <= - 700:
             f[0] = 600
     
     # --------------------- Mudança da velocidade geral -----------------------------#
-    if (state['coinCounter'] != 0 and state['coinCounter'] % 20 == 0 )and state['muda_vel'] and state['vel_padrao'] < 180:
-        state['vel_padrao'] += 10
+    if state['coinCounter'] != 0 and state['coinCounter'] % 20 == 0 and state['muda_vel'] and state['vel_padrao'] < 400:
+        state['vel_padrao'] += 20
         state['vel'] = state['vel_padrao']
         state['muda_vel'] = False
-    elif state['coinCounter']//20 > 0:
+    elif state['coinCounter'] % 20 != 0:
         state['muda_vel'] = True  
 
     # --------------------------------------------------- #

@@ -105,8 +105,8 @@ class collectables:
         self.y = coord_y
         self.w = 32
         self.h = 32
-        #self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
-        self.selected = 'lychee'
+        self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
+        #self.selected = 'lychee'
         self.collected = False
     
     # ------ atualiza posição horizontal dos coletáveis ------- #

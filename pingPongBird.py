@@ -19,8 +19,9 @@ def inicialize(assets):
     pygame.key.set_repeat(50)
 
     # ----------------- Assets ----- -------------- #
-
-    flipBirb = pygame.transform.flip(assets['birb'], True, False)
+    teste = assets['birb']
+    print(teste)
+    flipBirb = pygame.transform.flip(teste, True, False)
     assets['flipBirb'] = flipBirb
     assets['dreamscape'] = pygame.image.load('assets/dreamscape.png')
 

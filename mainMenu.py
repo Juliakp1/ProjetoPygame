@@ -53,10 +53,10 @@ def inicialize():
             'Coins': coins,
             'Backgrounds': backgrounds,
             'Floors': floors,
-            'Name': ['aaa'],
+            'Name': ['placeholder'],
             'Rankings': ranking,
-            'Reset Skins': ['assets/aaaaaFail.png'],
-            'Exit': ['assets/aaaFail.png']
+            'Reset Skins': ['placeholder1'],
+            'Exit': ['placeholder2']
         },
 
         'currentMenu': 'Main menu',
@@ -95,7 +95,7 @@ def printRankings(state, assets, window):
 
 def reset_skins():
 
-    playerImg = playerImg = {
+    playerImg = {
     'birb': 'assets/birbOG.png',
     'pipe': 'assets/pipeOG.png',
     'coin': 'assets/coinOG.png',
@@ -283,6 +283,7 @@ def current_game_state(state, assets, window):
                         state['currentMenu'] = state['menus'][state['currentMenu']][state['currentItem']]
                         state['currentMenuIndex'] = state['currentItem']
                         state['inMainMenu'] = False
+                        state['currentItem'] = 0
 
                 if state['currentMenu'] == 'Name':
                     changingName = True
