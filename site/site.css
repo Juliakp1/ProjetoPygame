@@ -2,7 +2,7 @@ h1 {font-family: "Copperplate", fantasy;
 font-size: xx-large;
 }
 h2, button { font-family: "Copperplate", fantasy;
-    font-size: large;
+    font-size: xx-large;
 
 }
 h3 { font-family: "Monaco", monospace;
@@ -191,17 +191,39 @@ body {background-color: bisque;}
 }
 
 
-/* desinvolvedoras */
+/* desinvolvedoras ------------------- */
 .devs img{
-    padding: 1.5rem;
-    width: 20rem;
-    height: 10rem;
+    padding: 1rem;
+    width: 12rem;
+    height: 6rem;
 }
 
 .devs img:hover{
-    transform: scale(1.05, 1.05);
+    transform: scale(1, 1);
 }
+
 
 .dias:hover {
     background-color: #62b6a4;
+}
+
+/* dev images ---------------------------------- */
+
+.mini {
+    display: flex;
+    flex-direction: row;
+    padding: 0%;
+    border: 0cm;
+}
+
+.bunni {
+    transform: scale(0.3, 0.8);
+}
+
+.ppl {
+    transform: scale(0.7, 0.8);
+}
+
+.fox {
+    transform: scale(0.8, 0.8);
 }

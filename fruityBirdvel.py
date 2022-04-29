@@ -1,5 +1,5 @@
 import pygame, random, json
-from pingPongBird import ping_pong_birb
+from pingpongBird import ping_pong_birb
 from mainMenu import main_menu
 from classesfruityvel import *
 
@@ -11,6 +11,8 @@ coinNoise = pygame.mixer.Sound('assets/coinNoise.mp3')
 death = pygame.mixer.Sound('assets/death.mp3')
 flap = pygame.mixer.Sound('assets/flap.mp3')
 whoosh = pygame.mixer.Sound('assets/whoosh.mp3')
+frootYes = pygame.mixer.Sound('assets/frootYes.mp3')
+frootNo = pygame.mixer.Sound('assets/frootNo.mp3')
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -189,12 +191,14 @@ def current_game_state(state, assets):
     if state['collectable'] != 'none':
         state['collectable'].atualiza_status(deltaT, state['vel'])
         
-        if state['collectable'].verifica_colisao(state['birb']):
+        if state['collectable'].collected == False and state['collectable'].verifica_colisao(state['birb']):
+            pygame.mixer.Sound.play(frootYes)
             state['timeC'] = tiks
             state['collectable'].atualiza_efeitos(assets, state, window, tiks)
             
         if state['collectable'].collected == True:
             if tiks - state['timeC'] > 15000:
+                pygame.mixer.Sound.play(frootNo)
                 state['collectable'].volta_normal( assets, state)
                 state['collectable'] = 'none'
                 state['newCollectable'] = True
@@ -207,7 +211,7 @@ def current_game_state(state, assets):
     # ---------- Movimentação do chão ----------- #
     for f in state['floorPos'].values():
         f[0] -= state['vel'] * deltaT
-        if f[0] <= - 1200:
+        if f[0] <= - 600:
             f[0] = 600
     
     # --------------------- Mudança da velocidade geral -----------------------------#
