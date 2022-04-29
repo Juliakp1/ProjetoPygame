@@ -18,7 +18,7 @@ def inicialize(assets):
     pygame.init()
     pygame.key.set_repeat(50)
 
-    # ----------------- Assets ------------------- #
+    # ----------------- Assets ----- -------------- #
 
     flipBirb = pygame.transform.flip(assets['birb'], True, False)
     assets['flipBirb'] = flipBirb
@@ -95,11 +95,10 @@ def rendering_to_screen(window: pygame.Surface, assets, statePing):
     if statePing['fading'] == False:    
         statePing['birb_pong'].rendering_to_screen(window, assets)
 
-    # ----------------- Renders Game Over ------------------- #
-
-    if statePing['hitPipe'] == True:
-        window.blit(assets['fontDef'].render('Game Over', True, (0, 0, 0)), (165, 170))
-        window.blit(assets['fontDef'].render('Game Over', True, (255, 255, 255)), (163, 168)) 
+    # # ----------------- Renders Game Over ------------------- #
+    # if statePing['hitPipe'] == True:
+    #     window.blit(assets['fontDef'].render('Game Over', True, (0, 0, 0)), (165, 170))
+    #     window.blit(assets['fontDef'].render('Game Over', True, (255, 255, 255)), (163, 168)) 
 
     window.blit(assets['dreamscape'], [0, 0])
 
