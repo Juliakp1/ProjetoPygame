@@ -106,7 +106,7 @@ class collectables:
         self.w = 32
         self.h = 32
         self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
-        #self.selected = 'lychee'
+        #self.selected = 'cloud'
         self.collected = False
     
     # ------ atualiza posição horizontal dos coletáveis ------- #
