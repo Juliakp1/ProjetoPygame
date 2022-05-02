@@ -54,7 +54,7 @@ def inicialize():
             'Coins': coins,
             'Backgrounds': backgrounds,
             'Floors': floors,
-            'Name': ['placeholder'],
+            'Name': ['__________Change Name____'],
             'Rankings': ranking,
             'Reset Skins': ['placeholder1'],
             'Exit': ['placeholder2']
@@ -112,53 +112,53 @@ def reset_skins():
 
 def name_changer(state, assets, window):
 
-    window.blit(assets['background'], [0, 0])
-    currentNameTxt = assets['fontDef'].render('Current Name:', True, (0, 0, 0))
-    window.blit(currentNameTxt, (12, 32))
-    currentNameTxt = assets['fontDef'].render('Current Name:', True, (255, 255, 255))
-    window.blit(currentNameTxt, (10, 30))
-    name = assets['fontDef'].render(state['nameChosen'], True, (0, 0, 0))
-    window.blit(name, (12, 62))
-    name = assets['fontDef'].render(state['nameChosen'], True, (255, 255, 255))
-    window.blit(name, (10, 60))
+    while True:
 
-    for event in pygame.event.get():
+        window.blit(assets['background'], [0, 0])
+        currentNameTxt = assets['fontDef'].render('Current Name:', True, (0, 0, 0))
+        window.blit(currentNameTxt, (12, 32))
+        currentNameTxt = assets['fontDef'].render('Current Name:', True, (255, 255, 255))
+        window.blit(currentNameTxt, (10, 30))
+        name = assets['fontDef'].render(state['nameChosen'], True, (0, 0, 0))
+        window.blit(name, (12, 62))
+        name = assets['fontDef'].render(state['nameChosen'], True, (255, 255, 255))
+        window.blit(name, (10, 60))
 
-        if event.type == pygame.QUIT:
-            return False
+        for event in pygame.event.get():
 
-        if event.type == pygame.KEYDOWN and state['pressedKey'] == False:
-            
-            if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
-                state['currentMenu'] = 'Main menu'
-                state['currentMenuIndex'] = 0
-                state['currentItem'] = 0
-                state['inMainMenu'] = True
+            if event.type == pygame.QUIT:
                 return False
 
-            state['pressedKey'] = True
-            key = event.unicode
-            key = str(key)
-
-            if state['currentLetter'] >= 3:
-                state['currentLetter'] = 0
+            if event.type == pygame.KEYDOWN and state['pressedKey'] == False:
                 
-            pastName = state['nameChosen']
-            if state['currentLetter'] == 0:
-                newName = key + pastName[1] + pastName[2]
-            elif state['currentLetter'] == 1:
-                newName = pastName[0] + key + pastName[2]
-            elif state['currentLetter'] == 2:
-                newName = pastName[0] + pastName[1] + key
-            state['nameChosen'] = newName
-            state['currentLetter'] += 1
+                if (event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN) and state['nameChosen'] != 'aaa':
+                    state['currentMenu'] = 'Main menu'
+                    state['currentMenuIndex'] = 0
+                    state['currentItem'] = 0
+                    state['inMainMenu'] = True
+                    return False
 
-        if event.type == pygame.KEYUP:
-            state['pressedKey'] = False
+                state['pressedKey'] = True
+                key = event.unicode
+                key = str(key)
 
-    pygame.display.update()
+                if state['currentLetter'] >= 3:
+                    state['currentLetter'] = 0
+                    
+                pastName = state['nameChosen']
+                if state['currentLetter'] == 0:
+                    newName = key + pastName[1] + pastName[2]
+                elif state['currentLetter'] == 1:
+                    newName = pastName[0] + key + pastName[2]
+                elif state['currentLetter'] == 2:
+                    newName = pastName[0] + pastName[1] + key
+                state['nameChosen'] = newName
+                state['currentLetter'] += 1
 
-    return True
+            if event.type == pygame.KEYUP:
+                state['pressedKey'] = False
+
+        pygame.display.update()
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -281,53 +281,59 @@ def current_game_state(state, assets, window):
                     if state['menus']['Main menu'][state['currentItem']] == 'Start Game !':
                         return False
                     else:
-                        state['currentMenu'] = state['menus'][state['currentMenu']][state['currentItem']]
                         state['currentMenuIndex'] = state['currentItem']
                         state['inMainMenu'] = False
                         state['currentItem'] = 0
+                        state['currentMenu'] = state['menus']['Main menu'][state['currentMenuIndex']]
+                    
 
-                if state['currentMenu'] == 'Name':
-                    changingName = True
-                    while changingName == True:
-                        changingName = name_changer(state, assets, window)
+                elif state['currentMenu'] == 'Skins':
+                    state['currentMenuIndex'] = state['currentItem']
+                    state['currentItem'] = 0
+                    state['currentMenu'] = state['menus']['Skins'][state['currentMenuIndex']]
+
+                elif state['currentMenu'] == 'Name':
+                    name_changer(state, assets, window)
                     state['currentMenu'] = 'Main menu'
                     state['currentMenuIndex'] = 0
                     state['inMainMenu'] = True
 
                 # ----------------- Loads selected images ------------------- #
-                elif state['currentMenuIndex'] in [1, 2, 3, 4, 5]:
+                elif state['currentMenu'] in ['Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors']:
+                    changedImg = 0
 
                     # Bird
-                    if state['currentMenuIndex'] == 1:
+                    if state['currentMenuIndex'] == 0:
                         changedImg = 'birb'
 
                     # Pipes
-                    elif state['currentMenuIndex'] == 2:
+                    elif state['currentMenuIndex'] == 1:
                         changedImg = 'pipe'
                     
                     # Coins
-                    elif state['currentMenuIndex'] == 3:
+                    elif state['currentMenuIndex'] == 2:
                         changedImg = 'coin'
 
                     # Bg
-                    elif state['currentMenuIndex'] == 4:
+                    elif state['currentMenuIndex'] == 3:
                         changedImg = 'bg'
 
                     # Floors
-                    elif state['currentMenuIndex'] == 5:
+                    elif state['currentMenuIndex'] == 4:
                         changedImg = 'floor'
 
                     # ----------------- Updates the json ------------------- #
+                    if changedImg != 0:
+                        with open('playerPrefs.json', 'r') as arquivo_json:
+                            skinsString = arquivo_json.read()  
+                        playerImg = json.loads(skinsString)
 
-                    with open('playerPrefs.json', 'r') as arquivo_json:
-                        skinsString = arquivo_json.read()  
-                    playerImg = json.loads(skinsString)
+                        skinMenu = state['menus'][state['currentMenu']][state['currentItem']]
+                        playerImg[changedImg] = skinMenu
 
-                    playerImg[changedImg] = state['menus'][state['currentMenu']][state['currentItem']]
-
-                    updatedJson = json.dumps(playerImg)
-                    with open('playerPrefs.json', 'w') as arquivo_json:
-                        arquivo_json.write(updatedJson)  
+                        updatedJson = json.dumps(playerImg)
+                        with open('playerPrefs.json', 'w') as arquivo_json:
+                            arquivo_json.write(updatedJson)  
 
                 state['currentItem'] = 0
             
@@ -362,7 +368,7 @@ def current_game_state(state, assets, window):
         state['currentMenuIndex'] = 0
         state['inMainMenu'] = True
 
-    if state['currentMenuIndex'] == 9:
+    if ['currentMenu'] == 'Exit':
         return False
     
     # ------------------------------------ #
@@ -389,9 +395,9 @@ def render_to_screen(state, assets, window):
 
         if state['currentMenu'] == 'Rankings':
             printRankings(state, assets, window)
-
+            
         else:
-            if state['currentMenu'] == 'Main menu':
+            if state['currentMenu'] == 'Main menu' or state['currentMenu'] == 'Skins':
                 text = state['menus'][state['currentMenu']][i]
             else:
                 text = removesUnwated(state['menus'][state['currentMenu']][i], state['currentMenu'])
@@ -427,6 +433,9 @@ def main_menu(window):
         assets = loads_images(playerImg)
 
         render_to_screen(state, assets, window)
+
+    if state['nameChosen'] == 'aaa':
+        name_changer(state, assets, window)
 
     return assets, state['nameChosen']
 
