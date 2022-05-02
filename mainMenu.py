@@ -47,7 +47,8 @@ def inicialize():
     state = {
 
         'menus': {
-            'Main menu': ['Start Game !', 'Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors', 'Name', 'Reset Skins', 'Rankings', 'Exit'],
+            'Main menu': ['Start Game !', 'Skins', 'Name', 'Rankings', 'Exit'],
+            'Skins': ['Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors', 'Reset Skins'],
             'Birds': birds,
             'Pipes': pipes,
             'Coins': coins,

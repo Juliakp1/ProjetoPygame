@@ -19,9 +19,7 @@ def inicialize(assets):
     pygame.key.set_repeat(50)
 
     # ----------------- Assets ----- -------------- #
-    teste = assets['birb']
-    print(teste)
-    flipBirb = pygame.transform.flip(teste, True, False)
+    flipBirb = pygame.transform.flip(assets['birb'], True, False)
     assets['flipBirb'] = flipBirb
     assets['dreamscape'] = pygame.image.load('assets/dreamscape.png')
 
@@ -184,6 +182,6 @@ def ping_pong_birb(assets, window):
 
 if __name__ == '__main__':
     window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
-    assets = main_menu(window)
+    assets, name = main_menu(window)
     ping_pong_birb(assets, window)
     pygame.quit()
