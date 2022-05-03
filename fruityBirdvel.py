@@ -211,7 +211,7 @@ def current_game_state(state, assets):
     # ---------- Movimentação do chão ----------- #
     for f in state['floorPos'].values():
         f[0] -= state['vel'] * deltaT
-        if f[0] <= - 700:
+        if f[0] <= - 600:
             f[0] = 600
     
     # --------------------- Mudança da velocidade geral -----------------------------#
@@ -233,7 +233,7 @@ def current_game_state(state, assets):
         if ev.type == pygame.KEYDOWN: 
             # Jumping (only once)
             if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w) and state['birb'].jumped == False:
-                state['birb'].vel = -200
+                state['birb'].vel = state['birb'].jump
                 state['birb'].jumped = True
             
             if ev.key == pygame.K_ESCAPE:

@@ -1,6 +1,5 @@
 import pygame, time
 from classespingpong import birb_pong, coin_pong, pipe_pong
-from mainMenu import main_menu
 
 # ----------------- Sounds ------------------- #
 
@@ -180,8 +179,8 @@ def ping_pong_birb(assets, window):
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-if __name__ == '__main__':
-    window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
-    assets, name = main_menu(window)
-    ping_pong_birb(assets, window)
-    pygame.quit()
+# if __name__ == '__main__':
+#     window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
+#     assets, name = main_menu(window)
+#     ping_pong_birb(assets, window)
+#     pygame.quit()

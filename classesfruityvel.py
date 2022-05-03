@@ -11,6 +11,7 @@ class birb:
         self.size = [size_x, size_y]
         self.vel = v
         self.jumped = False
+        self.jump = -200
     
     def atualiza_status(self, deltaT, floor_height, gravity):
 
@@ -105,8 +106,8 @@ class collectables:
         self.y = coord_y
         self.w = 32
         self.h = 32
-        self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm'])
-        #self.selected = 'cloud'
+        self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm', 'coco', 'amar'])
+        #self.selected = 'coco'
         self.collected = False
     
     # ------ atualiza posição horizontal dos coletáveis ------- #
@@ -167,6 +168,14 @@ class collectables:
             state['pipeTimer'] = 5000
             if state['vel'] == state['vel_padrao']:
                 state['vel'] *= 0.5
+        
+        # -------- Coco ------- #  
+        elif self.selected == 'coco':
+            state['birb'].jump = -100
+
+        # -------- Amarula ------- #  
+        elif self.selected == 'amar':
+            state['birb'].jump = -300
 
     # ------------ Volta as condições normais do jogo -------------- #
     def volta_normal(self, assets, state):
@@ -184,3 +193,4 @@ class collectables:
         assets['coin'] = pygame.transform.scale(assets['coin'], (32,32))
         state['pipeTimer'] = random.choice(range(3000, 5000, 500))
         state['vel'] = state['vel_padrao']
+        state['birb'].jump = -200

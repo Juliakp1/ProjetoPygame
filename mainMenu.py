@@ -1,5 +1,6 @@
 import pygame, json
 from filePathDump import filePaths
+from pingPongBird import ping_pong_birb
 pygame.mixer.init
 
 # ----------------- Sounds ------------------- #
@@ -47,7 +48,7 @@ def inicialize():
     state = {
 
         'menus': {
-            'Main menu': ['Start Game !', 'Skins', 'Name', 'Rankings', 'Exit'],
+            'Main menu': ['Start Game !', 'Skins', 'Name', 'Rankings', 'Ping Pong Bird', 'Exit'],
             'Skins': ['Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors', 'Reset Skins'],
             'Birds': birds,
             'Pipes': pipes,
@@ -56,6 +57,7 @@ def inicialize():
             'Floors': floors,
             'Name': ['__________Change Name____'],
             'Rankings': ranking,
+            'Ping Pong Bird': ['placeholder3'],
             'Reset Skins': ['placeholder1'],
             'Exit': ['placeholder2']
         },
@@ -200,6 +202,12 @@ def loads_images(playerImg):
     imgWatermelon = pygame.image.load('assets/fruitWatermelon.png')
     imgWatermelon = pygame.transform.scale(imgWatermelon, (32, 32))
 
+    imgCoco = pygame.image.load('assets/fruitCoco.png')
+    imgCoco = pygame.transform.scale(imgCoco, (32, 32))
+
+    imgAmar = pygame.image.load('assets/fruitAmar.png')
+    imgAmar = pygame.transform.scale(imgAmar, (32, 32))
+
     #  Fontes  #
     pygame.font.init()
     fontDef = pygame.font.Font('assets/pixelFont.ttf', 30)
@@ -221,7 +229,9 @@ def loads_images(playerImg):
         'jaca' : imgJaca,
         'lychee': imgLychee,
         'star': imgStar,
-        'waterm': imgWatermelon
+        'waterm': imgWatermelon,
+        'coco': imgCoco,
+        'amar': imgAmar
     }
 
     return assets
@@ -267,6 +277,7 @@ def current_game_state(state, assets, window):
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
+            state['nameChosen'] ='aba'
             return False
 
         if event.type == pygame.KEYDOWN:
@@ -297,6 +308,7 @@ def current_game_state(state, assets, window):
                     state['currentMenu'] = 'Main menu'
                     state['currentMenuIndex'] = 0
                     state['inMainMenu'] = True
+                    state['pressedKey'] = True
 
                 # ----------------- Loads selected images ------------------- #
                 elif state['currentMenu'] in ['Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors']:
@@ -368,7 +380,14 @@ def current_game_state(state, assets, window):
         state['currentMenuIndex'] = 0
         state['inMainMenu'] = True
 
-    if ['currentMenu'] == 'Exit':
+    if state['currentMenu'] == 'Ping Pong Bird':
+        ping_pong_birb(assets, window)
+        state['currentMenu'] = 'Main menu'
+        state['currentMenuIndex'] = 0
+        state['inMainMenu'] = True
+    
+    if state['currentMenu'] == 'Exit':
+        state['nameChosen'] ='aba'
         return False
     
     # ------------------------------------ #
