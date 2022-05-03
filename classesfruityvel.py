@@ -15,16 +15,18 @@ class birb:
     
     def atualiza_status(self, deltaT, floor_height, gravity):
 
-        # ----------------- Birb Vertical ------------------- #
+        # ----------------- atualiza a posição vertical do birb ------------------- #
 
         self.vel = self.vel + gravity * deltaT
         self.y = self.y + self.vel * deltaT 
 
-        # ----------------- Floor and teto detection ------------------- #
+        # ----------------- garante que o birb fique dentro da tela ------------------- #
 
+        # em relação ao chão
         if self.y > floor_height - self.size[1]:
             self.y = floor_height - self.size[1]
         
+        # em relação ao teto
         elif self.y < 0:
             self.y =  0
 
