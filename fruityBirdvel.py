@@ -94,7 +94,7 @@ def resets(state):
     state['nameChosen'] = nameChosen
     state['lastUpdated'] = pygame.time.get_ticks()
     
-    # velocidade
+    # velocidade (de pipes, coins, collectables)
     state['vel'] = 100
     state['vel_padrao'] = 100
     state['muda_vel'] = True
@@ -196,10 +196,10 @@ def current_game_state(state, assets):
         if i.verifica_colisao(state['birb']):
             state['hitPipe'] = True
             pygame.mixer.Sound.play(death)
-        if state['birb'].x - state['birb'].size[0] > i.upper_pos[0] and i.pont == False:
+        if state['birb'].x - state['birb'].size[0] > i.upper_pos[0] and i.passou == False:
             state['coinCounter'] += 1
             pygame.mixer.Sound.play(whoosh)
-            i.pont = True
+            i.passou = True
     
     for c in state['coins']:
         c.atualiza_status(deltaT, state['vel'])

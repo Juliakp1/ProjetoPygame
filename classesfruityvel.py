@@ -47,7 +47,7 @@ class pipe:
         self.height = h
         self.upper_pos = [self.horiz, self.height -600]
         self.lower_pos = [self.horiz, self.height +150]
-        self.pont = False
+        self.passou = False
     
     # ------ atualiza posição horizontal dos canos ------- #
 
@@ -60,7 +60,6 @@ class pipe:
     def desenha(self, window, assets):
         window.blit(assets['pipeTop'], self.upper_pos)
         window.blit(assets['pipeLow'], self.lower_pos)
-       # window.blit(assets['coin'], coinPo)
     
     # ------------------------ verifica colisão entre canos e passaro ------------------------- #
 
@@ -83,17 +82,17 @@ class coin:
         self.h = 32
 
         
-    # ------ atualiza posição horizontal das moedas ------- #
+    # ------ atualiza posição horizontal das coins ------- #
     
     def atualiza_status(self, deltaT, vel):
         self.x -= vel * deltaT
     
-    # ------------- desenha as moedas na tela -------------- # 
+    # ------------- desenha as coins na tela -------------- # 
     
     def desenha(self, window, assets):
         window.blit(assets['coin'], [self.x, self.y ])
     
-    # ----------------- verifica colisão entre moedas e passaro ------------------ #
+    # ----------------- verifica colisão entre coins e birb ------------------ #
     def verifica_colisao(self,birb):
         bird = pygame.Rect(birb.x, birb.y, birb.size[0], birb.size[1])
         coin = pygame.Rect(self.x, self.y, self.w, self.h)
@@ -112,17 +111,17 @@ class collectables:
         #self.selected = 'coco'
         self.collected = False
     
-    # ------ atualiza posição horizontal dos coletáveis ------- #
+    # ------ atualiza posição horizontal do collectable ------- #
 
     def atualiza_status(self, deltaT, vel):
         self.x -= vel * deltaT
         
-    # ------------- desenha o coletável da vez na tela -------------- # 
+    # ------------- desenha o collectable da vez na tela -------------- # 
     
     def desenha(self, window, assets):
         window.blit(assets[self.selected], [ self.x, self.y ])
     
-    # ----------------- verifica colisão entre os coletáveis e passaro ------------------ #
+    # ----------------- verifica colisão entre collectable e birb ------------------ #
     
     def verifica_colisao(self,birb):
         bird = pygame.Rect(birb.x, birb.y, birb.size[0], birb.size[1])
