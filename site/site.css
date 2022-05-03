@@ -68,13 +68,13 @@ body {background-color: bisque;}
     padding: 2rem;
     transform: scale(1.1, 1);
 
-    background-image: url('noGameOver.png');
+    background-image: url('assets/noGameOver.png');
     color: #fafafa;
     font-size: xx-large;
                 
 }
 .bloco1 button:hover {
-    background-image: url('gameOver.png');
+    background-image: url('assets/gameOver.png');
     transform: scale(1.2, 1.1);
 
 }
