@@ -117,6 +117,8 @@ def name_changer(state, assets, window):
 
     while True:
 
+        # ---------------- Bg e 'current name' -------------------- #
+
         window.blit(assets['background'], [0, 0])
         currentNameTxt = assets['fontDef'].render('Current Name:', True, (0, 0, 0))
         window.blit(currentNameTxt, (12, 32))
@@ -127,6 +129,8 @@ def name_changer(state, assets, window):
         name = assets['fontDef'].render(state['nameChosen'], True, (255, 255, 255))
         window.blit(name, (10, 60))
 
+        # ------------------------------------ #
+
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -135,6 +139,8 @@ def name_changer(state, assets, window):
 
             if event.type == pygame.KEYDOWN and state['pressedKey'] == False:
                 
+                # ------------------------------------ #
+                
                 if (event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN) and state['nameChosen'] != 'aaa':
                     state['currentMenu'] = 'Main menu'
                     state['currentMenuIndex'] = 0
@@ -142,22 +148,30 @@ def name_changer(state, assets, window):
                     state['inMainMenu'] = True
                     return False
 
-                state['pressedKey'] = True
-                key = event.unicode
-                key = str(key)
+                # ------------------------------------ #
 
-                if state['currentLetter'] >= 3:
-                    state['currentLetter'] = 0
+                if not (event.key == pygame.K_BACKSPACE or event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT):
+
+                    state['pressedKey'] = True
+                    key = event.unicode
+                    key = str(key)
+
+                    if state['currentLetter'] >= 3:
+                        state['currentLetter'] = 0
                     
-                pastName = state['nameChosen']
-                if state['currentLetter'] == 0:
-                    newName = key + pastName[1] + pastName[2]
-                elif state['currentLetter'] == 1:
-                    newName = pastName[0] + key + pastName[2]
-                elif state['currentLetter'] == 2:
-                    newName = pastName[0] + pastName[1] + key
-                state['nameChosen'] = newName
-                state['currentLetter'] += 1
+                    # ---------------- Troca o nome uma letra por vez -------------------- #
+
+                    pastName = state['nameChosen']
+                    if state['currentLetter'] == 0:
+                        newName = key + pastName[1] + pastName[2]
+                    elif state['currentLetter'] == 1:
+                        newName = pastName[0] + key + pastName[2]
+                    elif state['currentLetter'] == 2:
+                        newName = pastName[0] + pastName[1] + key
+                    state['nameChosen'] = newName
+                    state['currentLetter'] += 1
+
+                # ------------------------------------ #
 
             if event.type == pygame.KEYUP:
                 state['pressedKey'] = False
@@ -391,6 +405,7 @@ def current_game_state(state, assets, window):
     if state['currentMenu'] == 'Exit':
         state['closedGame'] = True
         
+    # ------------------------------------ #
     
     if state['closedGame'] == True:
         state['nameChosen'] ='aba'
