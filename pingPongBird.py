@@ -46,7 +46,7 @@ def inicialize(assets):
         'hitPipe': False,
         'timer': 5000,
         'fading': False,
-        'quitGame': False
+        'closedGame': False
     }
 
     return assets, statePing
@@ -135,7 +135,7 @@ def current_game_state(statePing):
     for ev in pygame.event.get():
 
         if ev.type == pygame.QUIT:
-            statePing['quitGame'] = True
+            statePing['closedGame'] = True
             return False
 
     # ----------------- Key Presses ------------------- #
@@ -144,10 +144,7 @@ def current_game_state(statePing):
 
             # Controls the pipe
             statePing['pipe_pong'].movimenta(ev)
-            # if ev.key == pygame.K_LEFT:
-            #     state['mainPipePos'][0] -= state['pipeSpeed']
-            # if ev.key == pygame.K_RIGHT:
-            #     state['mainPipePos'][0] += state['pipeSpeed']
+
 
             # For game reseting
             if ev.key == pygame.K_r and statePing['hitPipe'] == True:
@@ -175,12 +172,6 @@ def ping_pong_birb(assets, window):
     while current_game_state(statePing):
         rendering_to_screen(window, assets, statePing)
     
-    return statePing['coin_pong'].counter
+    return statePing['coin_pong'].counter, statePing['closedGame']
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
-
-# if __name__ == '__main__':
-#     window = pygame.display.set_mode((1200, 600), vsync=True, flags=pygame.SCALED)
-#     assets, name = main_menu(window)
-#     ping_pong_birb(assets, window)
-#     pygame.quit()
