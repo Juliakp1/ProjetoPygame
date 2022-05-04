@@ -1,5 +1,4 @@
 import pygame, random, json
-from pingPongBird import ping_pong_birb
 from mainMenu import main_menu
 from classesfruityvel import *
 
@@ -36,7 +35,6 @@ def inicialize():
 
         # floor 
         'floorHeight': 520,
-        #'floorPos':{0: [0, 520], 1:[600,520], 2:[1200,520]},
         'floorPos' : [[0,520], [600,520], [1200,520]],
 
         # coins
@@ -78,7 +76,6 @@ def resets(state):
     state['lastPipe'] = pygame.time.get_ticks()
     
     # floor
-    #state['floorPos'] = {0: [0, 520], 1:[600,520], 2:[1200,520]},
     state['floorPos'] = [[0,520], [600,520], [1200,520]]
     
     # coins
@@ -90,7 +87,7 @@ def resets(state):
     state['newCollectable'] = True
     state['collectable'] = 'none'
     state['contador'] = 5
-    #state['timeCollectable'] = pygame.time.get_ticks()
+
 
     # geral
     state['lastRestart'] = pygame.time.get_ticks()

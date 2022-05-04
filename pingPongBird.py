@@ -1,14 +1,14 @@
-import pygame, time
+import pygame
 from classespingpong import birb_pong, coin_pong, pipe_pong
 
 # ----------------- Sounds ------------------- #
 
 pygame.mixer.init()
 
-coinNoise = pygame.mixer.Sound('assets/coinNoise.mp3')
-death = pygame.mixer.Sound('assets/death.mp3')
-flap = pygame.mixer.Sound('assets/flap.mp3')
-whoosh = pygame.mixer.Sound('assets/whoosh.mp3')
+coinNoise = pygame.mixer.Sound('assets/coinNoise.mp3') # quando coleta a moeda
+death = pygame.mixer.Sound('assets/death.mp3') # quando o passarinho bate no cano
+flap = pygame.mixer.Sound('assets/flap.mp3') # quando o passarinho pula
+whoosh = pygame.mixer.Sound('assets/whoosh.mp3') # quando o passarinho passa pelo cano
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -36,9 +36,6 @@ def inicialize(assets):
         'birb_pong' : birb_pong(700, 200, 200, 100),
 
         # ----- coin ------- #
-        #'coinPos': [596, 189],
-        #'gotCoin': False,
-        #'coinCounter': 0,
         'coin_pong' : coin_pong(596, 189, False, 0),
 
         'last_updated': 0,
@@ -61,8 +58,6 @@ def resets(statePing):
 
     statePing['pipe_pong'] = pipe_pong(0, -472, 250)
     
-    #statePing['coinCounter'] = 0
-    #statePing['gotCoin'] = False
     statePing['coin_pong'] = coin_pong(596, 189, False, 0)
 
     tiks = pygame.time.get_ticks()
@@ -93,10 +88,7 @@ def rendering_to_screen(window: pygame.Surface, assets, statePing):
     if statePing['fading'] == False:    
         statePing['birb_pong'].rendering_to_screen(window, assets)
 
-    # # ----------------- Renders Game Over ------------------- #
-    # if statePing['hitPipe'] == True:
-    #     window.blit(assets['fontDef'].render('Game Over', True, (0, 0, 0)), (165, 170))
-    #     window.blit(assets['fontDef'].render('Game Over', True, (255, 255, 255)), (163, 168)) 
+
 
     window.blit(assets['dreamscape'], [0, 0])
 

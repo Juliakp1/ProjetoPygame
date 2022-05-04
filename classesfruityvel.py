@@ -109,7 +109,6 @@ class collectables:
         self.w = 32
         self.h = 32
         self.selected = random.choice(['cloud', 'coffee', 'jaca', 'lychee', 'star', 'waterm', 'coco', 'amar'])
-        #self.selected = 'coco'
         self.collected = False
     
     # ------ atualiza posição horizontal do collectable ------- #
