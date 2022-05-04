@@ -7,12 +7,12 @@ from classesfruityvel import *
 
 pygame.mixer.init()
 
-coinNoise = pygame.mixer.Sound('assets/coinNoise.mp3')
-death = pygame.mixer.Sound('assets/death.mp3')
-flap = pygame.mixer.Sound('assets/flap.mp3')
-whoosh = pygame.mixer.Sound('assets/whoosh.mp3')
-frootYes = pygame.mixer.Sound('assets/frootYes.mp3')
-frootNo = pygame.mixer.Sound('assets/frootNo.mp3')
+coinNoise = pygame.mixer.Sound('assets/coinNoise.mp3') # quando coleta a moeda
+death = pygame.mixer.Sound('assets/death.mp3') # quando o passarinho bate no cano
+flap = pygame.mixer.Sound('assets/flap.mp3') # quando o passarinho pula
+whoosh = pygame.mixer.Sound('assets/whoosh.mp3') # quando o passarinho passa pelo cano
+frootYes = pygame.mixer.Sound('assets/frootYes.mp3') # quando é coletado algum power up
+frootNo = pygame.mixer.Sound('assets/frootNo.mp3') # quando o efeito do power up acaba
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -36,7 +36,8 @@ def inicialize():
 
         # floor 
         'floorHeight': 520,
-        'floorPos':{0: [0, 520], 1:[600,520], 2:[1200,520]},
+        #'floorPos':{0: [0, 520], 1:[600,520], 2:[1200,520]},
+        'floorPos' : [[0,520], [600,520], [1200,520]],
 
         # coins
         'coinCounter': 0,
@@ -46,8 +47,8 @@ def inicialize():
         # collectables
         'newCollectable': True,
         'collectable': 'none',
-        'contador': 5,
-        'timeC': 0,
+        'contador': 5, # conta a quantidade de canos que já passaram (começa no 5 para que apareça um collectable logo no começo)
+        'timeCollectable': 0, # momento em que o collectable foi coletado
         
         # geral 
         'lastUpdated': 0,
@@ -67,22 +68,35 @@ def resets(state):
 
     assets, nameChosen = main_menu(window)
 
+    # birb
+    state['birb'] = birb(200, 300, 34, 24, -100)
+
+    # pipe
+    state['pipes'] = []
     state['hitPipe'] = False
-    state['lastRestart'] = pygame.time.get_ticks()
     state['lastPipe'] = pygame.time.get_ticks()
+    
+    # floor
+    #state['floorPos'] = {0: [0, 520], 1:[600,520], 2:[1200,520]},
+    state['floorPos'] = [[0,520], [600,520], [1200,520]]
+    
+    # coins
+    state['coins'] = []
     state['coinCounter'] = 0
     state['newCoin'] = True
-    state['birb'].x , state['birb'].y = 200, 300
-    state['birb'].vel = 100
-    state['pipes'] = []
-    state['coins'] = []
-    state['nameChosen'] = nameChosen
-    
+
     # collectable
     state['newCollectable'] = True
     state['collectable'] = 'none'
     state['contador'] = 5
-    state['timeC'] = pygame.time.get_ticks()
+    #state['timeCollectable'] = pygame.time.get_ticks()
+
+    # geral
+    state['lastRestart'] = pygame.time.get_ticks()
+    state['nameChosen'] = nameChosen
+    state['lastUpdated'] = pygame.time.get_ticks()
+    
+    # velocidade (de pipes, coins, collectables)
     state['vel'] = 100
     state['vel_padrao'] = 100
     state['muda_vel'] = True
@@ -93,11 +107,12 @@ def resets(state):
 
 def updates_ranking(nameChosen, coinCounter):
 
+    # ----------------- Abre o arquivo do ranking ------------------- # 
     with open('ranking.json', 'r') as arquivo_json:
         rankString = arquivo_json.read()  
     ranks= json.loads(rankString)
 
-    # ----------------- Adds new score ------------------- # 
+    # ----------------- Adiciona a nova pontuação ------------------- # 
 
     if nameChosen not in ranks:
         ranks[nameChosen] = coinCounter
@@ -105,7 +120,7 @@ def updates_ranking(nameChosen, coinCounter):
         if ranks[nameChosen] < coinCounter:
             ranks[nameChosen] = coinCounter
 
-    # ----------------- Checks top 15 ------------------- #
+    # ----------------- Compara a pontuação em questão com a menor colocada  ------------------- #
 
     if len(ranks) > 15:
         lowestScore = -1
@@ -116,8 +131,9 @@ def updates_ranking(nameChosen, coinCounter):
         if lowestScore > -1:
             del ranks[lowestName]
 
-    ranks = {k: v for k, v in sorted(ranks.items(), key=lambda item: item[1], reverse=True)}
+    ranks = {k: v for k, v in sorted(ranks.items(), key=lambda item: item[1], reverse=True)} # organiza o ranking em ordem crescente
 
+    # reescreve o ranking com as modificações efetuadas na função
     updatedJson = json.dumps(ranks)
     with open('ranking.json', 'w') as arquivo_json:
         arquivo_json.write(updatedJson)  
@@ -134,7 +150,7 @@ def custom_window(assets):
 
 def current_game_state(state, assets):
 
-    # ----------------- Time ------------------- #
+    # ----------------- Tempo ------------------- #
 
     tiks = pygame.time.get_ticks()
     deltaT = (tiks - state['lastUpdated']) / 1000
@@ -145,8 +161,15 @@ def current_game_state(state, assets):
 
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-    # --------------------------- Pipe, Coin and Collectable spawing ------------------------------- #
+    # --------------------------- Pipe, Coin e Collectable spawing ------------------------------- #
 
+    # modifica o tempo entre um cano e outro de acordo com a pontuação 
+    if state['coinCounter'] >= 80:
+        state['pipeTimer'] = random.choice(range(2000, 4000, 500))
+    else:
+        state['pipeTimer'] = random.choice(range(3000, 5000, 500))
+
+    # adiciona o novo cano
     if tiks - state['lastPipe'] > state['pipeTimer']:
         state['lastPipe'] = tiks
         state['pipes'].append(pipe(random.randint(50,370)))
@@ -154,11 +177,12 @@ def current_game_state(state, assets):
         state['newCoin'] = True
         state['contador'] += 1
         
-    
+    # adiciona a nova moeda 
     if tiks - (state['lastPipe']) > state['pipeTimer']/2 and state['newCoin']:
         state['coins'].append(coin(1200, random.randint(32, 480)))
         state['newCoin'] = False 
     
+    # adiciona o novo collectable
     if state['contador'] > 6 and tiks - state['lastPipe'] > 1500 and state['newCollectable']:
         state['collectable'] = collectables(random.randint(32,480))
         state['newCollectable'] = False
@@ -174,10 +198,10 @@ def current_game_state(state, assets):
         if i.verifica_colisao(state['birb']):
             state['hitPipe'] = True
             pygame.mixer.Sound.play(death)
-        if state['birb'].x - state['birb'].size[0] > i.upper_pos[0] and i.pont == False:
+        if state['birb'].x - state['birb'].size[0] > i.upper_pos[0] and i.passou == False:
             state['coinCounter'] += 1
             pygame.mixer.Sound.play(whoosh)
-            i.pont = True
+            i.passou = True
     
     for c in state['coins']:
         c.atualiza_status(deltaT, state['vel'])
@@ -193,11 +217,11 @@ def current_game_state(state, assets):
         
         if state['collectable'].collected == False and state['collectable'].verifica_colisao(state['birb']):
             pygame.mixer.Sound.play(frootYes)
-            state['timeC'] = tiks
+            state['timeCollectable'] = tiks
             state['collectable'].atualiza_efeitos(assets, state, window, tiks)
             
         if state['collectable'].collected == True:
-            if tiks - state['timeC'] > 15000:
+            if tiks - state['timeCollectable'] > 15000:
                 pygame.mixer.Sound.play(frootNo)
                 state['collectable'].volta_normal( assets, state)
                 state['collectable'] = 'none'
@@ -209,11 +233,11 @@ def current_game_state(state, assets):
             state['newCollectable'] = True
 
     # ---------- Movimentação do chão ----------- #
-    for f in state['floorPos'].values():
+    for f in state['floorPos']:
         f[0] -= state['vel'] * deltaT
         if f[0] <= - 600:
-            f[0] = 600
-    
+            f[0] = 900
+
     # --------------------- Mudança da velocidade geral -----------------------------#
     if state['coinCounter'] != 0 and state['coinCounter'] % 20 == 0 and state['muda_vel'] and state['vel_padrao'] < 400:
         state['vel_padrao'] += 20
@@ -277,12 +301,13 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
     window.blit(assets['fontDef_big'].render(time, True, (255, 255, 255)), (18, 13))
 
     # Floor
-    for f in state['floorPos'].values():
+    for f in state['floorPos']:
         window.blit(assets['floor'], f)
  
-    # Bird
+    # Birb
     state['birb'].desenha(assets, window)
 
+    # Game Over
     if state['hitPipe'] == True:
         window.blit(assets['fontDef_big'].render('Game Over', True, (0, 0, 0)), (165, 170))
         window.blit(assets['fontDef_big'].render('Game Over', True, (255, 255, 255)), (163, 168))
@@ -327,7 +352,7 @@ if __name__ == '__main__':
                     state['hitPipe'] = False
                     break
                 if ev.type == pygame.KEYDOWN: 
-                    if ev.key == pygame.K_r or ev.key == pygame.K_ESCAPE:
+                    if ev.key == pygame.K_r or ev.key == pygame.K_ESCAPE or ev.key == pygame.K_RETURN:
                         assets = resets(state)
                         custom_window(assets)
         # ------------------------------------------------ #
