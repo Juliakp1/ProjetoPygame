@@ -74,7 +74,8 @@ def inicialize():
         'birbFloor': 380,
 
         'nameChosen': 'aaa',
-        'currentLetter': 0
+        'currentLetter': 0,
+        'closedGame': False
     
     }
 
@@ -129,6 +130,7 @@ def name_changer(state, assets, window):
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
+
                 return False
 
             if event.type == pygame.KEYDOWN and state['pressedKey'] == False:
@@ -278,7 +280,7 @@ def current_game_state(state, assets, window):
 
         if event.type == pygame.QUIT:
             state['nameChosen'] ='aba'
-            return False
+            state['closedGame'] = True
 
         if event.type == pygame.KEYDOWN:
 
@@ -381,12 +383,16 @@ def current_game_state(state, assets, window):
         state['inMainMenu'] = True
 
     if state['currentMenu'] == 'Ping Pong Bird':
-        ping_pong_birb(assets, window)
+        coin, state['closedGame'] = ping_pong_birb(assets, window)
         state['currentMenu'] = 'Main menu'
         state['currentMenuIndex'] = 0
         state['inMainMenu'] = True
     
     if state['currentMenu'] == 'Exit':
+        state['closedGame'] = True
+        
+    
+    if state['closedGame'] == True:
         state['nameChosen'] ='aba'
         return False
     
@@ -456,7 +462,7 @@ def main_menu(window):
     if state['nameChosen'] == 'aaa':
         name_changer(state, assets, window)
 
-    return assets, state['nameChosen']
+    return assets, state['nameChosen'], state['closedGame'] 
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 

@@ -57,6 +57,7 @@ def inicialize():
         'nameChosen': 'asd',
         'vel': 100,
         'vel_padrao': 100,
+        'closedGame': False
 
     }
 
@@ -66,7 +67,7 @@ def inicialize():
 
 def resets(state):
 
-    assets, nameChosen = main_menu(window)
+    assets, nameChosen, state['closedGame'] = main_menu(window)
 
     # birb
     state['birb'] = birb(200, 300, 34, 24, -100)
@@ -101,7 +102,7 @@ def resets(state):
     state['vel_padrao'] = 100
     state['muda_vel'] = True
 
-    return assets
+    return assets, state['closedGame']
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
@@ -251,7 +252,7 @@ def current_game_state(state, assets):
     for ev in pygame.event.get():
 
         if ev.type == pygame.QUIT:
-            return False
+            state['closedGame'] = True
 
         # ----------------- Inputs ------------------- #
         if ev.type == pygame.KEYDOWN: 
@@ -267,6 +268,9 @@ def current_game_state(state, assets):
             if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w):
                 state['birb'].jumped = False
                 pygame.mixer.Sound.play(flap)
+    
+    if state['closedGame'] == True:
+        return False
 
     return True
 
@@ -323,7 +327,7 @@ if __name__ == '__main__':
 
     # ----------------- Main menu and characters ------------------- #
     state = inicialize()
-    assets = resets(state)
+    assets, state['closedGame'] = resets(state)
     custom_window(assets)
 
     rendering_to_screen(window, assets, state)
@@ -353,7 +357,7 @@ if __name__ == '__main__':
                     break
                 if ev.type == pygame.KEYDOWN: 
                     if ev.key == pygame.K_r or ev.key == pygame.K_ESCAPE or ev.key == pygame.K_RETURN:
-                        assets = resets(state)
+                        assets, state['closedGame'] = resets(state)
                         custom_window(assets)
         # ------------------------------------------------ #
 
