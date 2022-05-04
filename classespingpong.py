@@ -19,6 +19,8 @@ class birb_pong :
         self.vel_V = vel_v
     
     def rendering_to_screen(self, window, assets):
+        
+        # quando o birb bate na parede esquerda, gira a imagem do birb 
         if self.vel_H < 0:
             flipBirb = pygame.transform.rotate(assets['flipBirb'], self.vel_V * 0.25)
             window.blit(flipBirb, [self.pos_X, self.pos_Y])
@@ -31,14 +33,14 @@ class birb_pong :
     # dentro da função current_game_state
     def atualiza_status(self, deltaT, statePing):
         
-        # ----------------- Makes birb bounce ------------------- #
+        # ----------------- Movimenta o birb ------------------- #
         self.pos_X += self.vel_H * deltaT 
         self.vel_V += statePing['gravity'] * deltaT
         self.pos_Y += self.vel_V * deltaT 
 
-        # ----------------- Makes birb not off screen ------------------- #
+        # ----------------- Garante que o birb não saia da tela ------------------- #
 
-        # Horizontally
+        # Horizontal
         if self.pos_X >= statePing['windowSize'][0] - 35 :
             self.vel_H *= -1
             statePing['coin_pong'].collected = False
@@ -50,7 +52,7 @@ class birb_pong :
             self.pos_X = 2
             pygame.mixer.Sound.play(flap)
 
-        # Vertically
+        # Vertical
         if self.pos_Y - 30 < 0 or self.pos_Y + 30 >= statePing['windowSize'][1]:
             self.vel_V *= -1
             self.pos_Y =  statePing['windowSize'][1] - 35
@@ -91,12 +93,9 @@ class pipe_pong:
     def movimenta(self, ev):
         if ev.key == pygame.K_UP and self.main_pos[1] >= -128:
             self.main_pos[1] -= self.speed_v
-            #self.upper_pos[1] -= self.speed_v
-            #self.lower_pos[1] -= self.speed_v
+
         if ev.key == pygame.K_DOWN and self.main_pos[1] <= 350:
             self.main_pos[1] += self.speed_v
-            #self.upper_pos[1] += self.speed_v
-            #self.lower_pos[1] += self.speed_v
     
     # dentro da função current_game_state
 
@@ -105,7 +104,7 @@ class pipe_pong:
         # aumenta a velocidade horizontal conforme o numero de moedas
         if coin_pong.counter >= 10:
 
-            # Horizontal speed
+            # velocidade horizontal
             if coin_pong.counter >= 50:
                 self.speed_h = 5
             elif coin_pong.counter >= 40:
@@ -117,7 +116,7 @@ class pipe_pong:
             elif coin_pong.counter >= 10:
                 self.speed_h = 1
 
-            # Direction of the movement
+            # direção do moviemnto
             if self.upper_pos[0] <= 0:
                 self.direction = 1
             elif self.upper_pos[0] >= statePing['windowSize'][0] - 64: 
@@ -157,4 +156,3 @@ class coin_pong:
             self.collected = True
             self.counter += 1
             pygame.mixer.Sound.play(coinNoise)
-

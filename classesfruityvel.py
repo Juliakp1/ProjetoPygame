@@ -4,6 +4,7 @@ import json
 from pingPongBird import ping_pong_birb
 from fruityBirdvel import custom_window
 
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 class birb:
     def __init__(self, coord_x, coord_y, size_x, size_y, v):
         self.x = coord_x 

@@ -36,7 +36,8 @@ def inicialize():
 
         # floor 
         'floorHeight': 520,
-        'floorPos':{0: [0, 520], 1:[600,520], 2:[1200,520]},
+        #'floorPos':{0: [0, 520], 1:[600,520], 2:[1200,520]},
+        'floorPos' : [[0,520], [600,520], [1200,520]],
 
         # coins
         'coinCounter': 0,
@@ -76,7 +77,8 @@ def resets(state):
     state['lastPipe'] = pygame.time.get_ticks()
     
     # floor
-    state['floorPos'] = {0: [0, 520], 1:[600,520], 2:[1200,520]},
+    #state['floorPos'] = {0: [0, 520], 1:[600,520], 2:[1200,520]},
+    state['floorPos'] = [[0,520], [600,520], [1200,520]]
     
     # coins
     state['coins'] = []
@@ -231,11 +233,11 @@ def current_game_state(state, assets):
             state['newCollectable'] = True
 
     # ---------- Movimentação do chão ----------- #
-    for f in state['floorPos'].values():
+    for f in state['floorPos']:
         f[0] -= state['vel'] * deltaT
         if f[0] <= - 600:
             f[0] = 900
-    
+
     # --------------------- Mudança da velocidade geral -----------------------------#
     if state['coinCounter'] != 0 and state['coinCounter'] % 20 == 0 and state['muda_vel'] and state['vel_padrao'] < 400:
         state['vel_padrao'] += 20
@@ -299,12 +301,13 @@ def rendering_to_screen(window: pygame.Surface, assets, state):
     window.blit(assets['fontDef_big'].render(time, True, (255, 255, 255)), (18, 13))
 
     # Floor
-    for f in state['floorPos'].values():
+    for f in state['floorPos']:
         window.blit(assets['floor'], f)
  
-    # Bird
+    # Birb
     state['birb'].desenha(assets, window)
 
+    # Game Over
     if state['hitPipe'] == True:
         window.blit(assets['fontDef_big'].render('Game Over', True, (0, 0, 0)), (165, 170))
         window.blit(assets['fontDef_big'].render('Game Over', True, (255, 255, 255)), (163, 168))
@@ -349,7 +352,7 @@ if __name__ == '__main__':
                     state['hitPipe'] = False
                     break
                 if ev.type == pygame.KEYDOWN: 
-                    if ev.key == pygame.K_r or ev.key == pygame.K_ESCAPE:
+                    if ev.key == pygame.K_r or ev.key == pygame.K_ESCAPE or ev.key == pygame.K_RETURN:
                         assets = resets(state)
                         custom_window(assets)
         # ------------------------------------------------ #
