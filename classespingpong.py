@@ -11,16 +11,26 @@ flap = pygame.mixer.Sound('assets/flap.mp3')
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-class birb_pong :
+class Birb_pong :
     def __init__(self, coord_x, coord_y, vel_h, vel_v):
         self.pos_X = coord_x
         self.pos_Y = coord_y
         self.vel_H = vel_h
         self.vel_V = vel_v
+        self.gravity = 90
+    
     
     def rendering_to_screen(self, window, assets):
-        
-        # quando o birb bate na parede esquerda, gira a imagem do birb 
+        """
+        modifica a imagem do birb dependendo para o lado que ele está indo
+
+        Argumentos
+        ---------------
+        window : variável que armazena a janela do pygame
+        assets: dicionário que armazena fontes e imagens
+        """
+
+        # quando o birb bate na parede esquerda
         if self.vel_H < 0:
             flipBirb = pygame.transform.rotate(assets['flipBirb'], self.vel_V * 0.25)
             window.blit(flipBirb, [self.pos_X, self.pos_Y])
@@ -29,13 +39,21 @@ class birb_pong :
             birb = pygame.transform.rotate(assets['birb'], -self.vel_V * 0.25)
             window.blit(birb, [self.pos_X, self.pos_Y])
     
-
-    # dentro da função current_game_state
     def atualiza_status(self, deltaT, statePing):
+        """
+        atualiza a posição vertical e horizontal do pássaro
+
+        Argumentos
+        ---------------
+        deltaT (float) : variação de tempo em segundos
+        statePing : dicionario com as variáveis principais do jogo
+
+        """
         
         # ----------------- Movimenta o birb ------------------- #
+
         self.pos_X += self.vel_H * deltaT 
-        self.vel_V += statePing['gravity'] * deltaT
+        self.vel_V += self.gravity * deltaT
         self.pos_Y += self.vel_V * deltaT 
 
         # ----------------- Garante que o birb não saia da tela ------------------- #
@@ -60,7 +78,7 @@ class birb_pong :
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
     
-class pipe_pong:
+class Pipe_pong:
     def __init__(self, main_y, upper_y, lower_y):
         self.horiz = 580 
         self.main_pos = [self.horiz, main_y]
@@ -71,15 +89,18 @@ class pipe_pong:
         self.direction = 1
     
     def rendering_to_screen(self, window, assets):
+        """
+        desenha os canos na tela
+        """
         
         window.blit(assets['pipeTop'], self.upper_pos)
-
         window.blit(assets['pipeLow'], self.lower_pos)
     
-    # dentro da função current_game_state
-
-    # ---------- verifica colisao entre os canos e a moeda --------------- #
     def verifica_colisao(self, birb_pong):
+        """
+        verifica colisao entre os canos e a moeda
+        """
+
         bird = pygame.Rect(birb_pong.pos_X, birb_pong.pos_Y, 34, 24)
         upper_pipe = pygame.Rect(self.upper_pos[0], self.upper_pos[1], 64, 600 )
         lower_pipe = pygame.Rect(self.lower_pos[0], self.lower_pos[1], 64, 600 )
@@ -88,9 +109,10 @@ class pipe_pong:
             return True
         return False
 
-    # dentro da função current_game_state
-    # -------- movimenta o cano verticalmente ----------- #
     def movimenta(self, ev, joystick):
+        """
+        movimenta o cano verticalmente
+        """
 
         # controller ver
         if pygame.joystick.get_init():
@@ -106,9 +128,10 @@ class pipe_pong:
             if ev.key == pygame.K_DOWN and self.main_pos[1] <= 350:
                 self.main_pos[1] += self.speed_v
     
-    # dentro da função current_game_state
-
     def atualiza_status(self, statePing, coin_pong):
+        """
+        atualiza a posição dos canos e modifica a velocidade horizontal
+        """
 
         # aumenta a velocidade horizontal conforme o numero de moedas
         if coin_pong.counter >= 10:
@@ -149,16 +172,17 @@ class pipe_pong:
         
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
-class coin_pong:
+class Coin_pong:
     def __init__(self, coord_x, coord_y, gotCoin, coinCounter):
         self.pos = [coord_x, coord_y]
         self.collected = gotCoin
         self.counter = coinCounter
-    
-    # dentro da função current_game_state
 
-    # ---------- verifica colisao entre o passaro e a moeda --------------- #
     def verifica_colisao(self, birb_pong):
+        """
+        verifica colisão entre o pássaro e a moeda
+        """
+
         bird = pygame.Rect(birb_pong.pos_X, birb_pong.pos_Y, 34, 24)
         coin = pygame.Rect(self.pos[0], self.pos[1], 32, 32 )
         if pygame.Rect.colliderect(bird, coin) and self.collected == False:

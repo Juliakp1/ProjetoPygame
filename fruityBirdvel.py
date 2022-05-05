@@ -38,8 +38,7 @@ def inicialize():
 
     state = {
         # birb
-        'birb' : birb(200, 300, 34, 24, -100),
-        'gravity': 500,
+        'birb' : Birb(200, 300, 34, 24, -100),
 
         # pipe 
         'hitPipe': False,
@@ -79,11 +78,13 @@ def inicialize():
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def resets(state):
-
+    """
+    reinicia o valor das variáveis 
+    """
     assets, nameChosen, state['closedGame'] = main_menu(window)
 
     # birb
-    state['birb'] = birb(200, 300, 34, 24, -100)
+    state['birb'] = Birb(200, 300, 34, 24, -100)
 
     # pipe
     state['pipes'] = []
@@ -119,6 +120,15 @@ def resets(state):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def updates_ranking(nameChosen, coinCounter):
+    """
+    atualiza o ranking
+
+    Argumentos
+    -----------
+    nameChosen : nome digitado pelo usuário
+    coinCounter : quantidade de ponto que o usuário fez
+
+    """
 
     # ----------------- Abre o arquivo do ranking ------------------- # 
     with open('ranking.json', 'r') as arquivo_json:
@@ -136,12 +146,12 @@ def updates_ranking(nameChosen, coinCounter):
     # ----------------- Compara a pontuação em questão com a menor colocada  ------------------- #
 
     if len(ranks) > 15:
-        lowestScore = -1
+        lowestScore = 10 ** 7
         for names in ranks:
             if ranks[names] < lowestScore:
                 lowestScore = ranks[names]
                 lowestName = names
-        if lowestScore > -1:
+        if lowestScore > 10 ** 7:
             del ranks[lowestName]
 
     ranks = {k: v for k, v in sorted(ranks.items(), key=lambda item: item[1], reverse=True)} # organiza o ranking em ordem crescente
@@ -162,7 +172,11 @@ def custom_window(assets):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def current_game_state(state, assets):
+    """
+    - cria um novo objeto das classes Pipe, Coin e Collectable de acordo com tempo de cada um
+    -  atualiza a posição dos objetos e verifa a colisão de cada um em relação ao birb
 
+    """
     # ----------------- Tempo ------------------- #
 
     tiks = pygame.time.get_ticks()
@@ -187,27 +201,28 @@ def current_game_state(state, assets):
     # adiciona o novo cano
     if tiks - state['lastPipe'] > state['pipeTimer']:
         state['lastPipe'] = tiks
-        state['pipes'].append(pipe(random.randint(50,370)))
+        state['pipes'].append(Pipe(random.randint(50,370)))
         state['pipeTimer'] = random.choice(range(3000, 5000, 500))
         state['newCoin'] = True
         state['contador'] += 1
         
     # adiciona a nova moeda 
     if tiks - (state['lastPipe']) > state['pipeTimer']/2 and state['newCoin']:
-        state['coins'].append(coin(1200, random.randint(32, 480)))
+        state['coins'].append(Coin(1200, random.randint(32, 480)))
         state['newCoin'] = False 
     
     # adiciona o novo collectable
     if state['contador'] > 6 and tiks - state['lastPipe'] > 1500 and state['newCollectable']:
-        state['collectable'] = collectables(random.randint(32,480))
+        state['collectable'] = Collectables(random.randint(32,480))
         state['newCollectable'] = False
         state['contador'] = 0
 
     
     # ----------------- Pipe, Coin, Floor and ceiling detection ------------------- #
 
-    state['birb'].atualiza_status(deltaT, state['floorHeight'], state['gravity'])
+    state['birb'].atualiza_status(deltaT, state['floorHeight'])
     
+    # atualiza a posição vertical e verifica a colisão de cada cano com o birb
     for i in state['pipes']:
         i.atualiza_status(deltaT, state['vel'])
         if i.verifica_colisao(state['birb']):
@@ -218,6 +233,7 @@ def current_game_state(state, assets):
             pygame.mixer.Sound.play(whoosh)
             i.passou = True
     
+    # atualiza a posição vertical e verifica a colisão de cada moeda com o birb
     for c in state['coins']:
         c.atualiza_status(deltaT, state['vel'])
         if c.verifica_colisao(state['birb']):
@@ -267,33 +283,9 @@ def current_game_state(state, assets):
 
         if ev.type == pygame.QUIT:
             state['closedGame'] = True
-
-        # ----------------- Inputs Controller ------------------- #
-        if ev.type == pygame.JOYBUTTONDOWN and state['birb'].jumped == False: 
-            pygame.mixer.Sound.play(flap)
-            state['joystick'].rumble(0.2, 0.4, 100)
-            state['birb'].vel = state['birb'].jump
-            state['birb'].jumped = True
         
-        if ev.type == pygame.JOYBUTTONUP:
-            state['birb'].jumped = False
-
-
-        # ----------------- Inputs Keyboard ------------------- #
-        if ev.type == pygame.KEYDOWN: 
-            # Jumping (only once)
-            if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w) and state['birb'].jumped == False:
-                pygame.mixer.Sound.play(flap)
-                state['birb'].vel = state['birb'].jump
-                state['birb'].jumped = True
-            
-            if ev.key == pygame.K_ESCAPE:
-                state['hitPipe'] = True
+        state['birb'].movimenta(ev, flap, state)
         
-        if ev.type == pygame.KEYUP:
-            if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w):
-                state['birb'].jumped = False
-    
     if state['closedGame'] == True:
         return False
 
@@ -302,7 +294,9 @@ def current_game_state(state, assets):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def rendering_to_screen(window: pygame.Surface, assets, state):
-
+    """
+    desenha os itens na tela
+    """
     # Bg
     window.blit(assets['background'], [0, 0])
 
@@ -366,7 +360,7 @@ if __name__ == '__main__':
             tiks = pygame.time.get_ticks()
             deltaT = (tiks - state['lastUpdated']) / 1000
             state['lastUpdated'] = tiks
-            state['birb'].atualiza_status(deltaT, state['floorHeight'], state['gravity'])
+            state['birb'].atualiza_status(deltaT, state['floorHeight'])
             rendering_to_screen(window, assets, state)
 
  

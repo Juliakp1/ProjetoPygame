@@ -1,5 +1,5 @@
 import pygame
-from classespingpong import birb_pong, coin_pong, pipe_pong
+from classespingpong import Birb_pong, Coin_pong, Pipe_pong
 
 # ----------------- Sounds ------------------- #
 
@@ -38,17 +38,16 @@ def inicialize(assets):
 
         # ------ pipe ---- #
         
-        'pipe_pong' : pipe_pong(0, -472, 250),
+        'pipe_pong' : Pipe_pong(0, -472, 250),
 
         # ---- birb_pong ---- #
 
-        'birb_pong' : birb_pong(700, 200, 200, 100),
+        'birb_pong' : Birb_pong(700, 200, 200, 100),
 
         # ----- coin ------- #
-        'coin_pong' : coin_pong(596, 189, False, 0),
+        'coin_pong' : Coin_pong(596, 189, False, 0),
 
         'last_updated': 0,
-        'gravity': 90,
         'hitPipe': False,
         'timer': 5000,
         'fading': False,
@@ -64,11 +63,11 @@ def resets(statePing):
     statePing['hitPipe'] = False
     
 
-    statePing['birb_pong'] = birb_pong(1000, 200, 200, 100)
+    statePing['birb_pong'] = Birb_pong(1000, 200, 200, 100)
 
-    statePing['pipe_pong'] = pipe_pong(0, -472, 250)
+    statePing['pipe_pong'] = Pipe_pong(0, -472, 250)
     
-    statePing['coin_pong'] = coin_pong(596, 189, False, 0)
+    statePing['coin_pong'] = Coin_pong(596, 189, False, 0)
 
     tiks = pygame.time.get_ticks()
     statePing['last_updated'] = tiks

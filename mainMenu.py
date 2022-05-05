@@ -1,13 +1,11 @@
-from inspect import Attribute
 import pygame, json
 from filePathDump import filePaths
 from pingPongBird import ping_pong_birb
-pygame.mixer.init
+
 
 # ----------------- Sounds ------------------- #
 
 pygame.mixer.init()
-
 menuNoise = pygame.mixer.Sound('assets/menuClick.mp3')
 
 
@@ -108,6 +106,9 @@ def printRankings(state, assets, window):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def reset_skins():
+    """
+    estabele todas as skins para a versão padrão
+    """
 
     playerImg = {
     'birb': 'assets/birbOG.png',
@@ -124,6 +125,9 @@ def reset_skins():
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def name_changer(state, assets, window):
+    """
+    abre uma tela que possibilita a alteração do nome do usuário
+    """
 
     while True:
 
@@ -191,6 +195,14 @@ def name_changer(state, assets, window):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def loads_images(playerImg):
+    """
+    carrega as imagens e cria o assets
+
+    Argumento
+    ---------
+    playerImg : dicionário que armazena as skins escolhidas pelo usuário
+
+    """
 
     # ----------------- Loads Images ------------------- #
 
@@ -265,6 +277,19 @@ def loads_images(playerImg):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def removesUnwated(string, group):
+    """
+    remove a parte desnecessário do caminho do arquivo
+
+    Argumentos
+    ----------
+    string : caminho da imagem 
+    group : qual grupo de imagens, ela pertence ( ex. background )
+
+    Exemplo
+    -------
+    assets/birbOG.png --> OG
+
+    """
 
     if group == 'Backgrounds':
         extra = 'bgg'
@@ -280,6 +305,9 @@ def removesUnwated(string, group):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def renderBirb(state, assets, window):
+    """
+    movimenta o passaro do menu
+    """
 
     tiks = pygame.time.get_ticks()
     deltaT = (tiks - state['lastUpdated']) /1000
@@ -299,6 +327,11 @@ def renderBirb(state, assets, window):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def current_game_state(state, assets, window):
+    """
+    - captura os eventos do usuário
+    - realiza a troca de telas no menu
+    
+    """
 
     for event in pygame.event.get():
 
@@ -323,12 +356,13 @@ def current_game_state(state, assets, window):
                         state['currentItem'] = 0
                         state['currentMenu'] = state['menus']['Main menu'][state['currentMenuIndex']]
                     
-
+                # Menu Skins
                 elif state['currentMenu'] == 'Skins':
                     state['currentMenuIndex'] = state['currentItem']
                     state['currentItem'] = 0
                     state['currentMenu'] = state['menus']['Skins'][state['currentMenuIndex']]
 
+                # Menu Name
                 elif state['currentMenu'] == 'Name':
                     name_changer(state, assets, window)
                     state['currentMenu'] = 'Main menu'
@@ -436,12 +470,13 @@ def current_game_state(state, assets, window):
                             state['currentItem'] = 0
                             state['currentMenu'] = state['menus']['Main menu'][state['currentMenuIndex']]
                         
-
+                    # Menu Skins
                     elif state['currentMenu'] == 'Skins':
                         state['currentMenuIndex'] = state['currentItem']
                         state['currentItem'] = 0
                         state['currentMenu'] = state['menus']['Skins'][state['currentMenuIndex']]
 
+                    # Menu Name
                     elif state['currentMenu'] == 'Name':
                         name_changer(state, assets, window)
                         state['currentMenu'] = 'Main menu'
@@ -527,7 +562,9 @@ def current_game_state(state, assets, window):
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
 def render_to_screen(state, assets, window):
-    
+    """
+    desenha as imagens na tela
+    """
     window.blit(assets['background'], [0, 0])
     window.blit(assets['pipeTop'], (600, -300))
     window.blit(assets['pipeLow'], (600, 400))
