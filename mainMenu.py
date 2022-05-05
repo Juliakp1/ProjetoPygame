@@ -326,6 +326,78 @@ def renderBirb(state, assets, window):
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 
+def menu_choosing(state, assets):
+
+    state['pressedKey'] = True
+    pygame.mixer.Sound.play(menuNoise)
+
+    if state['inMainMenu'] == True:
+
+        if state['menus']['Main menu'][state['currentItem']] == 'Start Game !':
+            return False
+        else:
+            state['currentMenuIndex'] = state['currentItem']
+            state['inMainMenu'] = False
+            state['currentItem'] = 0
+            state['currentMenu'] = state['menus']['Main menu'][state['currentMenuIndex']]
+        
+    # Menu Skins
+    elif state['currentMenu'] == 'Skins':
+        state['currentMenuIndex'] = state['currentItem']
+        state['currentItem'] = 0
+        state['currentMenu'] = state['menus']['Skins'][state['currentMenuIndex']]
+
+    # Menu Name
+    elif state['currentMenu'] == 'Name':
+        name_changer(state, assets, window)
+        state['currentMenu'] = 'Main menu'
+        state['currentMenuIndex'] = 0
+        state['inMainMenu'] = True
+        state['pressedKey'] = True
+
+    # ----------------- Loads selected images ------------------- #
+    elif state['currentMenu'] in ['Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors']:
+        changedImg = 0
+
+        # Bird
+        if state['currentMenuIndex'] == 0:
+            changedImg = 'birb'
+
+        # Pipes
+        elif state['currentMenuIndex'] == 1:
+            changedImg = 'pipe'
+        
+        # Coins
+        elif state['currentMenuIndex'] == 2:
+            changedImg = 'coin'
+
+        # Bg
+        elif state['currentMenuIndex'] == 3:
+            changedImg = 'bg'
+
+        # Floors
+        elif state['currentMenuIndex'] == 4:
+            changedImg = 'floor'
+
+        # ----------------- Updates the json ------------------- #
+        if changedImg != 0:
+            with open('playerPrefs.json', 'r') as arquivo_json:
+                skinsString = arquivo_json.read()  
+            playerImg = json.loads(skinsString)
+
+            skinMenu = state['menus'][state['currentMenu']][state['currentItem']]
+            playerImg[changedImg] = skinMenu
+
+            updatedJson = json.dumps(playerImg)
+            with open('playerPrefs.json', 'w') as arquivo_json:
+                arquivo_json.write(updatedJson)  
+
+    state['currentItem'] = 0
+
+    return state
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
 def current_game_state(state, assets, window):
     """
     - captura os eventos do usuário
@@ -343,71 +415,7 @@ def current_game_state(state, assets, window):
 
             # ----------------- Enters a menu ------------------- #
             if (event.key == pygame.K_SPACE or event.key == pygame.K_RETURN or event.key == pygame.K_e) and state['pressedKey'] == False:
-                state['pressedKey'] = True
-                pygame.mixer.Sound.play(menuNoise)
-
-                if state['inMainMenu'] == True:
-
-                    if state['menus']['Main menu'][state['currentItem']] == 'Start Game !':
-                        return False
-                    else:
-                        state['currentMenuIndex'] = state['currentItem']
-                        state['inMainMenu'] = False
-                        state['currentItem'] = 0
-                        state['currentMenu'] = state['menus']['Main menu'][state['currentMenuIndex']]
-                    
-                # Menu Skins
-                elif state['currentMenu'] == 'Skins':
-                    state['currentMenuIndex'] = state['currentItem']
-                    state['currentItem'] = 0
-                    state['currentMenu'] = state['menus']['Skins'][state['currentMenuIndex']]
-
-                # Menu Name
-                elif state['currentMenu'] == 'Name':
-                    name_changer(state, assets, window)
-                    state['currentMenu'] = 'Main menu'
-                    state['currentMenuIndex'] = 0
-                    state['inMainMenu'] = True
-                    state['pressedKey'] = True
-
-                # ----------------- Loads selected images ------------------- #
-                elif state['currentMenu'] in ['Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors']:
-                    changedImg = 0
-
-                    # Bird
-                    if state['currentMenuIndex'] == 0:
-                        changedImg = 'birb'
-
-                    # Pipes
-                    elif state['currentMenuIndex'] == 1:
-                        changedImg = 'pipe'
-                    
-                    # Coins
-                    elif state['currentMenuIndex'] == 2:
-                        changedImg = 'coin'
-
-                    # Bg
-                    elif state['currentMenuIndex'] == 3:
-                        changedImg = 'bg'
-
-                    # Floors
-                    elif state['currentMenuIndex'] == 4:
-                        changedImg = 'floor'
-
-                    # ----------------- Updates the json ------------------- #
-                    if changedImg != 0:
-                        with open('playerPrefs.json', 'r') as arquivo_json:
-                            skinsString = arquivo_json.read()  
-                        playerImg = json.loads(skinsString)
-
-                        skinMenu = state['menus'][state['currentMenu']][state['currentItem']]
-                        playerImg[changedImg] = skinMenu
-
-                        updatedJson = json.dumps(playerImg)
-                        with open('playerPrefs.json', 'w') as arquivo_json:
-                            arquivo_json.write(updatedJson)  
-
-                state['currentItem'] = 0
+                state = menu_choosing(state, assets)
             
             # ----------------- Goes up and down menus in Keyboard ------------------- #
 
@@ -432,8 +440,6 @@ def current_game_state(state, assets, window):
         elif event.type == pygame.KEYUP:
             state['pressedKey'] = False
 
-    # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
-
         # ----------------- Goes up and down menus in Joystick ------------------- #
 
         elif pygame.joystick.get_init():
@@ -453,75 +459,9 @@ def current_game_state(state, assets, window):
     
         # ----------------- Clicking controller ------------------- #
             if event.type == pygame.JOYBUTTONDOWN:
-
                 state['joystick'].rumble(0.2, 0.4, 100)
-                state['pressedKey'] = True
-                pygame.mixer.Sound.play(menuNoise)
-
-
                 if (state['joystick'].get_button(1) or state['joystick'].get_button(7)) != True:
-                    if state['inMainMenu'] == True:
-
-                        if state['menus']['Main menu'][state['currentItem']] == 'Start Game !':
-                            return False
-                        else:
-                            state['currentMenuIndex'] = state['currentItem']
-                            state['inMainMenu'] = False
-                            state['currentItem'] = 0
-                            state['currentMenu'] = state['menus']['Main menu'][state['currentMenuIndex']]
-                        
-                    # Menu Skins
-                    elif state['currentMenu'] == 'Skins':
-                        state['currentMenuIndex'] = state['currentItem']
-                        state['currentItem'] = 0
-                        state['currentMenu'] = state['menus']['Skins'][state['currentMenuIndex']]
-
-                    # Menu Name
-                    elif state['currentMenu'] == 'Name':
-                        name_changer(state, assets, window)
-                        state['currentMenu'] = 'Main menu'
-                        state['currentMenuIndex'] = 0
-                        state['inMainMenu'] = True
-                        state['pressedKey'] = True
-
-                    # ----------------- Loads selected images ------------------- #
-                    elif state['currentMenu'] in ['Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors']:
-                        changedImg = 0
-
-                        # Bird
-                        if state['currentMenuIndex'] == 0:
-                            changedImg = 'birb'
-
-                        # Pipes
-                        elif state['currentMenuIndex'] == 1:
-                            changedImg = 'pipe'
-                        
-                        # Coins
-                        elif state['currentMenuIndex'] == 2:
-                            changedImg = 'coin'
-
-                        # Bg
-                        elif state['currentMenuIndex'] == 3:
-                            changedImg = 'bg'
-
-                        # Floors
-                        elif state['currentMenuIndex'] == 4:
-                            changedImg = 'floor'
-
-                        # ----------------- Updates the json ------------------- #
-                        if changedImg != 0:
-                            with open('playerPrefs.json', 'r') as arquivo_json:
-                                skinsString = arquivo_json.read()  
-                            playerImg = json.loads(skinsString)
-
-                            skinMenu = state['menus'][state['currentMenu']][state['currentItem']]
-                            playerImg[changedImg] = skinMenu
-
-                            updatedJson = json.dumps(playerImg)
-                            with open('playerPrefs.json', 'w') as arquivo_json:
-                                arquivo_json.write(updatedJson)  
-
-                    state['currentItem'] = 0
+                    state = menu_choosing(state, assets)
 
                 else:
                     state['currentMenu'] = 'Main menu'
