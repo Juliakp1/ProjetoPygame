@@ -89,13 +89,22 @@ class pipe_pong:
         return False
 
     # dentro da função current_game_state
-    # -------- movimenta os canos verticalmente ----------- #
-    def movimenta(self, ev):
-        if ev.key == pygame.K_UP and self.main_pos[1] >= -128:
-            self.main_pos[1] -= self.speed_v
+    # -------- movimenta o cano verticalmente ----------- #
+    def movimenta(self, ev, joystick):
 
-        if ev.key == pygame.K_DOWN and self.main_pos[1] <= 350:
-            self.main_pos[1] += self.speed_v
+        # controller ver
+        if pygame.joystick.get_init():
+            if joystick.get_axis(1) > 0.6:
+                self.main_pos[1] += self.speed_v/4
+            if joystick.get_axis(1) < -0.6:
+                self.main_pos[1] -= self.speed_v/4
+        
+        if ev.type == pygame.KEYDOWN:
+            if ev.key == pygame.K_UP and self.main_pos[1] >= -128:
+                self.main_pos[1] -= self.speed_v
+
+            if ev.key == pygame.K_DOWN and self.main_pos[1] <= 350:
+                self.main_pos[1] += self.speed_v
     
     # dentro da função current_game_state
 

@@ -152,7 +152,8 @@ class collectables:
         
         # -------- Cloud Portal ------- #
         elif self.selected == 'cloud':
-            state['coinCounter'] += ping_pong_birb(assets, window)
+            coins, state['closedGame'] = ping_pong_birb(assets, window)
+            state['coinCounter'] += coins
             state['birb'].y = 100
             state['lastUpdated'] = pygame.time.get_ticks()
             state['timeC'] = tiks - 16000

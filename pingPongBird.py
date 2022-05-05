@@ -17,6 +17,15 @@ def inicialize(assets):
     pygame.init()
     pygame.key.set_repeat(50)
 
+    # checks if there is a controller
+    try:
+        pygame.joystick.init()
+        joystick = pygame.joystick.Joystick(0)
+    except:
+        pygame.joystick.quit()
+        joystick = 0
+    
+
     # ----------------- Assets ----- -------------- #
     flipBirb = pygame.transform.flip(assets['birb'], True, False)
     assets['flipBirb'] = flipBirb
@@ -43,7 +52,8 @@ def inicialize(assets):
         'hitPipe': False,
         'timer': 5000,
         'fading': False,
-        'closedGame': False
+        'closedGame': False,
+        'joystick': joystick
     }
 
     return assets, statePing
@@ -114,6 +124,9 @@ def current_game_state(statePing):
         # ----------------- Colision with the pipe and coin ------------------- #
 
         statePing['hitPipe'] = (statePing['pipe_pong']).verifica_colisao(statePing['birb_pong']) 
+        if statePing['hitPipe']:
+            if pygame.joystick.get_init():
+                statePing['joystick'].rumble(0.4, 0.9, 100)
         statePing['coin_pong'].verifica_colisao(statePing['birb_pong'])
     
     # ----------------- Timer after hitting pipe ------------------- #
@@ -132,16 +145,9 @@ def current_game_state(statePing):
 
     # ----------------- Key Presses ------------------- #
 
-        if ev.type == pygame.KEYDOWN:
-
-            # Controls the pipe
-            statePing['pipe_pong'].movimenta(ev)
-
-
-            # For game reseting
-            if ev.key == pygame.K_r and statePing['hitPipe'] == True:
-                resets(statePing)
-    
+        # Controls the pipe
+        statePing['pipe_pong'].movimenta(ev, statePing['joystick'])
+           
     # ----------------- Updates pipe position ------------------- #
     
     statePing['pipe_pong'].atualiza_status(statePing, statePing['coin_pong'])

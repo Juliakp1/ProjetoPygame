@@ -1,3 +1,4 @@
+from inspect import Attribute
 import pygame, json
 from filePathDump import filePaths
 from pingPongBird import ping_pong_birb
@@ -25,6 +26,14 @@ playerImgDef = {
 def inicialize():
 
     pygame.init()
+
+    # checks if there is a controller
+    try:
+        pygame.joystick.init()
+        joystick = pygame.joystick.Joystick(0)
+    except:
+        pygame.joystick.quit()
+        joystick = 0
 
     # ----------------- Renames Window ------------------- #
 
@@ -75,7 +84,8 @@ def inicialize():
 
         'nameChosen': 'aaa',
         'currentLetter': 0,
-        'closedGame': False
+        'closedGame': False,
+        'joystick': joystick
     
     }
 
@@ -365,7 +375,7 @@ def current_game_state(state, assets, window):
 
                 state['currentItem'] = 0
             
-            # ----------------- Goes up and down menus ------------------- #
+            # ----------------- Goes up and down menus in Keyboard ------------------- #
 
             if event.key == pygame.K_UP and state['pressedKey'] == False:
                 state['currentItem'] -= 1
@@ -385,8 +395,107 @@ def current_game_state(state, assets, window):
                 state['currentItem'] = 0
                 state['inMainMenu'] = True
         
-        if event.type == pygame.KEYUP:
+        elif event.type == pygame.KEYUP:
             state['pressedKey'] = False
+
+    # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
+
+        # ----------------- Goes up and down menus in Joystick ------------------- #
+
+        elif pygame.joystick.get_init():
+            if state['joystick'].get_axis(1) < -0.9 and state['pressedKey'] == False:
+                state['currentItem'] -= 1
+                if state['currentItem'] < 0:
+                    state['currentItem'] = len(state['menus'][state['currentMenu']]) - 1
+                state['pressedKey'] = True
+            elif state['joystick'].get_axis(1) > 0.9 and state['pressedKey'] == False:
+                state['currentItem'] += 1
+                if state['currentItem'] >= len(state['menus'][state['currentMenu']]):
+                    state['currentItem'] = 0
+                state['pressedKey'] = True
+
+            if state['joystick'].get_axis(1) > -0.9 and state['joystick'].get_axis(1) < 0.9:
+                state['pressedKey'] = False
+    
+        # ----------------- Clicking controller ------------------- #
+            if event.type == pygame.JOYBUTTONDOWN:
+
+                state['joystick'].rumble(0.2, 0.4, 100)
+                state['pressedKey'] = True
+                pygame.mixer.Sound.play(menuNoise)
+
+
+                if (state['joystick'].get_button(1) or state['joystick'].get_button(7)) != True:
+                    if state['inMainMenu'] == True:
+
+                        if state['menus']['Main menu'][state['currentItem']] == 'Start Game !':
+                            return False
+                        else:
+                            state['currentMenuIndex'] = state['currentItem']
+                            state['inMainMenu'] = False
+                            state['currentItem'] = 0
+                            state['currentMenu'] = state['menus']['Main menu'][state['currentMenuIndex']]
+                        
+
+                    elif state['currentMenu'] == 'Skins':
+                        state['currentMenuIndex'] = state['currentItem']
+                        state['currentItem'] = 0
+                        state['currentMenu'] = state['menus']['Skins'][state['currentMenuIndex']]
+
+                    elif state['currentMenu'] == 'Name':
+                        name_changer(state, assets, window)
+                        state['currentMenu'] = 'Main menu'
+                        state['currentMenuIndex'] = 0
+                        state['inMainMenu'] = True
+                        state['pressedKey'] = True
+
+                    # ----------------- Loads selected images ------------------- #
+                    elif state['currentMenu'] in ['Birds', 'Pipes', 'Coins', 'Backgrounds', 'Floors']:
+                        changedImg = 0
+
+                        # Bird
+                        if state['currentMenuIndex'] == 0:
+                            changedImg = 'birb'
+
+                        # Pipes
+                        elif state['currentMenuIndex'] == 1:
+                            changedImg = 'pipe'
+                        
+                        # Coins
+                        elif state['currentMenuIndex'] == 2:
+                            changedImg = 'coin'
+
+                        # Bg
+                        elif state['currentMenuIndex'] == 3:
+                            changedImg = 'bg'
+
+                        # Floors
+                        elif state['currentMenuIndex'] == 4:
+                            changedImg = 'floor'
+
+                        # ----------------- Updates the json ------------------- #
+                        if changedImg != 0:
+                            with open('playerPrefs.json', 'r') as arquivo_json:
+                                skinsString = arquivo_json.read()  
+                            playerImg = json.loads(skinsString)
+
+                            skinMenu = state['menus'][state['currentMenu']][state['currentItem']]
+                            playerImg[changedImg] = skinMenu
+
+                            updatedJson = json.dumps(playerImg)
+                            with open('playerPrefs.json', 'w') as arquivo_json:
+                                arquivo_json.write(updatedJson)  
+
+                    state['currentItem'] = 0
+
+                else:
+                    state['currentMenu'] = 'Main menu'
+                    state['currentMenuIndex'] = 0
+                    state['currentItem'] = 0
+                    state['inMainMenu'] = True
+
+            if event.type == pygame.JOYBUTTONUP:
+                state['pressedKey'] = False
 
     # ----------------- Other menus ------------------- #
 

@@ -20,6 +20,20 @@ def inicialize():
     pygame.init()
     pygame.key.set_repeat(50)
 
+    # checks if there is a controller
+    try:
+        pygame.joystick.init()
+        joystick = pygame.joystick.Joystick(0)
+    except:
+        pygame.joystick.quit()
+        joystick = 0
+    
+    # Says if it is connected or not
+    if pygame.joystick.get_init():
+        print('Controller connected!')
+    else:
+        print('No controller connected!')
+
     # ----------------- States ------------------- #
 
     state = {
@@ -55,7 +69,8 @@ def inicialize():
         'nameChosen': 'asd',
         'vel': 100,
         'vel_padrao': 100,
-        'closedGame': False
+        'closedGame': False,
+        'joystick': joystick
 
     }
 
@@ -162,7 +177,9 @@ def current_game_state(state, assets):
     # --------------------------- Pipe, Coin e Collectable spawing ------------------------------- #
 
     # modifica o tempo entre um cano e outro de acordo com a pontuação 
-    if state['coinCounter'] >= 80:
+    if state['coinCounter'] >= 120:
+        state['pipeTimer'] = random.choice(range(1000, 3000, 500))
+    elif state['coinCounter'] >= 60:
         state['pipeTimer'] = random.choice(range(2000, 4000, 500))
     else:
         state['pipeTimer'] = random.choice(range(3000, 5000, 500))
@@ -251,10 +268,22 @@ def current_game_state(state, assets):
         if ev.type == pygame.QUIT:
             state['closedGame'] = True
 
-        # ----------------- Inputs ------------------- #
+        # ----------------- Inputs Controller ------------------- #
+        if ev.type == pygame.JOYBUTTONDOWN and state['birb'].jumped == False: 
+            pygame.mixer.Sound.play(flap)
+            state['joystick'].rumble(0.2, 0.4, 100)
+            state['birb'].vel = state['birb'].jump
+            state['birb'].jumped = True
+        
+        if ev.type == pygame.JOYBUTTONUP:
+            state['birb'].jumped = False
+
+
+        # ----------------- Inputs Keyboard ------------------- #
         if ev.type == pygame.KEYDOWN: 
             # Jumping (only once)
             if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w) and state['birb'].jumped == False:
+                pygame.mixer.Sound.play(flap)
                 state['birb'].vel = state['birb'].jump
                 state['birb'].jumped = True
             
@@ -264,7 +293,6 @@ def current_game_state(state, assets):
         if ev.type == pygame.KEYUP:
             if (ev.key == pygame.K_UP or ev.key == pygame.K_SPACE or ev.key == pygame.K_w):
                 state['birb'].jumped = False
-                pygame.mixer.Sound.play(flap)
     
     if state['closedGame'] == True:
         return False
@@ -356,6 +384,11 @@ if __name__ == '__main__':
                     if ev.key == pygame.K_r or ev.key == pygame.K_ESCAPE or ev.key == pygame.K_RETURN:
                         assets, state['closedGame'] = resets(state)
                         custom_window(assets)
+
+                if ev.type == pygame.JOYBUTTONDOWN:
+                    assets, state['closedGame'] = resets(state)
+                    custom_window(assets)
+                    
         # ------------------------------------------------ #
 
         if clickedX == True: 
